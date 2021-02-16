@@ -10,21 +10,35 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_15_114402) do
+ActiveRecord::Schema.define(version: 2021_02_16_112112) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "items", force: :cascade do |t|
     t.string "name"
+    t.boolean "checked", default: false
+    t.string "added_by"
     t.bigint "todo_id"
+    t.bigint "user_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["todo_id"], name: "index_items_on_todo_id"
+    t.index ["user_id"], name: "index_items_on_user_id"
   end
 
   create_table "todos", force: :cascade do |t|
     t.string "title"
+    t.string "status"
+    t.string "created_by"
+    t.bigint "user_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_todos_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "username"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
