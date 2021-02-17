@@ -42,7 +42,7 @@ ActiveRecord::Schema.define(version: 2021_02_17_090145) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "password_digest"
-    t.string "type"
+    t.string "role"
   end
 
 end
