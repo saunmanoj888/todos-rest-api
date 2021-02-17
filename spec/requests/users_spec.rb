@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'Users API', type: :request do
   let!(:users) { create_list(:user, 10) }
+  let(:user) { create(:user) }
   let(:user_id) { users.first.id }
 
   describe 'GET /users' do
@@ -94,6 +95,30 @@ RSpec.describe 'Users API', type: :request do
 
     it 'returns status code 204' do
       expect(response).to have_http_status(204)
+    end
+  end
+
+  describe 'POST /Login' do
+    let(:valid_attributes) { { user: { username: user.username, password: user.password } } }
+
+    context 'when the credential is valid' do
+      before { post '/login', params: valid_attributes }
+
+      it 'logs in successfully' do
+        expect(json['user']['username']).to eq(user.username)
+      end
+
+      it 'returns a valid token' do
+        expect(json['token']).to_not be_empty
+      end
+    end
+
+    context 'when the credential is invalid' do
+      before { post '/login', params: { user: { username: "tech", password: "wrongp" } } }
+
+      it 'returns a validation failure message' do
+        expect(json['error']).to eq('Invalid username or password')
+      end
     end
   end
 end

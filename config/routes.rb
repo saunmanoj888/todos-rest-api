@@ -5,4 +5,6 @@ Rails.application.routes.draw do
   end
 
   resources :users
+  post "/login", to: "users#login"
+  get "/auto_login", to: "users#auto_login"
 end
