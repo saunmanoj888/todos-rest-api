@@ -1,17 +1,15 @@
 require 'rails_helper'
 
-RSpec.describe 'Items API', type: :request do
-  let(:user) { create(:user) }
-  let!(:item) { create(:item) }
-  let(:item_id) { item.id }
-  let(:todo_id) { item.todo_id }
+RSpec.describe 'Users API', type: :request do
+  let!(:users) { create_list(:user, 10) }
+  let(:user_id) { users.first.id }
 
-  describe 'GET /items' do
-    before { get "/todos/#{todo_id}/items" }
+  describe 'GET /users' do
+    before { get '/users' }
 
-    it 'returns items' do
+    it 'returns users' do
       expect(json).not_to be_empty
-      expect(json.size).to eq(1)
+      expect(json.size).to eq(10)
     end
 
     it 'returns status code 200' do
@@ -19,13 +17,13 @@ RSpec.describe 'Items API', type: :request do
     end
   end
 
-  describe 'GET /items/:id' do
-    before { get "/items/#{item_id}" }
+  describe 'GET /users/:id' do
+    before { get "/users/#{user_id}" }
 
     context 'when the record exists' do
-      it 'returns the item' do
+      it 'returns the user' do
         expect(json).not_to be_empty
-        expect(json['id']).to eq(todo_id)
+        expect(json['id']).to eq(user_id)
       end
 
       it 'returns status code 200' do
@@ -34,26 +32,26 @@ RSpec.describe 'Items API', type: :request do
     end
 
     context 'when the record does not exist' do
-      let(:item_id) { 100 }
+      let(:user_id) { 100 }
 
       it 'returns status code 404' do
         expect(response).to have_http_status(404)
       end
 
       it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find Item/)
+        expect(response.body).to match(/Couldn't find User/)
       end
     end
   end
 
-  describe 'POST /items' do
-    let(:valid_attributes) { { item: { name: 'Learn Elm', added_by: 'manoj', checked: false, user_id: user.id } } }
+  describe 'POST /users' do
+    let(:valid_attributes) { { user: { username: 'manoj' } } }
 
     context 'when the request is valid' do
-      before { post "/todos/#{todo_id}/items", params: valid_attributes }
+      before { post '/users', params: valid_attributes }
 
-      it 'creates an item' do
-        expect(json['name']).to eq('Learn Elm')
+      it 'creates a user' do
+        expect(json['username']).to eq('manoj')
       end
 
       it 'returns status code 201' do
@@ -62,7 +60,7 @@ RSpec.describe 'Items API', type: :request do
     end
 
     context 'when the request is invalid' do
-      before { post "/todos/#{todo_id}/items", params: { item: { name: 'Foobar' } } }
+      before { post '/users', params: { user: { title: 'Foobar' } } }
 
       it 'returns status code 400' do
         expect(response).to have_http_status(400)
@@ -70,16 +68,16 @@ RSpec.describe 'Items API', type: :request do
 
       it 'returns a validation failure message' do
         expect(response.body)
-          .to match(/Validation failed: Added by can't be blank/)
+          .to match(/Validation failed: Username can't be blank/)
       end
     end
   end
 
-  describe 'PUT /items/:id' do
-    let(:valid_attributes) { { item: { checked: true } } }
+  describe 'PUT /users/:id' do
+    let(:valid_attributes) { { user: { username: 'saun' } } }
 
     context 'when the record exists' do
-      before { put "/items/#{item_id}", params: valid_attributes }
+      before { put "/users/#{user_id}", params: valid_attributes }
 
       it 'updates the record' do
         expect(response.body).to be_empty
@@ -91,8 +89,8 @@ RSpec.describe 'Items API', type: :request do
     end
   end
 
-  describe 'DELETE /items/:id' do
-    before { delete "/items/#{item_id}" }
+  describe 'DELETE /users/:id' do
+    before { delete "/users/#{user_id}" }
 
     it 'returns status code 204' do
       expect(response).to have_http_status(204)
