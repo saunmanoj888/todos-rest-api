@@ -1,9 +1,9 @@
 class ItemsController < ApplicationController
-  before_action :set_item, only: [:show, :update, :destroy]
-  before_action :set_todo, only: [:index, :create]
-  before_action :authorize_user, except: [:update, :index, :show]
-  before_action :validate_todo, only: [:create, :destroy]
-  before_action :validate_item, only: [:update]
+  before_action :set_item, only: %i[show update destroy]
+  before_action :set_todo, only: %i[index create]
+  before_action :authorize_user, except: %i[update index show]
+  before_action :validate_todo, only: %i[create destroy]
+  before_action :validate_item, only: %i[update]
 
   def index
     @items = @todo.items
@@ -45,10 +45,14 @@ class ItemsController < ApplicationController
 
   def validate_todo
     @todo ||= @item.todo
-    render json: { message: 'Only todo creator can add item' }, status: :unauthorized unless @todo.creator_id == current_user.id
+    return if @todo.creator_id == current_user.id
+
+    render json: { message: 'Only todo creator can add item' }, status: :unauthorized
   end
 
   def validate_item
-    render json: { message: 'Only assignee can perform this task' }, status: :unauthorized unless @item.assignee_id == current_user.id || @item.todo.creator_id == current_user.id
+    return if @item.assignee_id == current_user.id || @item.todo.creator_id == current_user.id
+
+    render json: { message: 'Only assignee can perform this task' }, status: :unauthorized
   end
 end
