@@ -7,6 +7,6 @@ RSpec.describe Item, type: :model do
   it { should belong_to(:assignee).class_name('User').with_foreign_key('assignee_id').inverse_of(:assigned_items) }
 
   context 'callbacks' do
-    it { is_expected.to callback(:update_todo_status).after(:update).if :checked_changed? }
+    it { is_expected.to callback(:update_todo_status).after(:save) }
   end
 end
