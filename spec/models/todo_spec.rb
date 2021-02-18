@@ -15,7 +15,6 @@ RSpec.describe Todo, type: :model do
     context 'when items exists' do
 
       context 'when all the items are checked' do
-
         it 'returns true' do
           expect(checked_item.todo.completed?).to be true
         end
@@ -26,6 +25,7 @@ RSpec.describe Todo, type: :model do
           expect(unchecked_item.todo.completed?).to be false
         end
       end
+
     end
 
     context 'when items does not exists' do
@@ -33,5 +33,6 @@ RSpec.describe Todo, type: :model do
         expect(todo.completed?).to be false
       end
     end
+
   end
 end

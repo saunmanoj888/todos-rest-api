@@ -13,8 +13,8 @@ RSpec.describe User, type: :model do
   it { should have_many(:assigned_items).class_name('Item').with_foreign_key('assignee_id').dependent(:restrict_with_error).inverse_of(:assignee) }
 
   describe "#admin?" do
-    context 'when user has admin rights' do
 
+    context 'when user has admin rights' do
       it 'returns true' do
         expect(admin_user.admin?).to be true
       end
@@ -25,5 +25,6 @@ RSpec.describe User, type: :model do
         expect(member_user.admin?).to be false
       end
     end
+
   end
 end
