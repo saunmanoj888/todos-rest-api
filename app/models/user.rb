@@ -6,4 +6,8 @@ class User < ApplicationRecord
   has_many :todos, foreign_key: "creator_id", dependent: :destroy, inverse_of: :creator
   has_many :created_items, class_name: "Item", foreign_key: "creator_id", dependent: :restrict_with_error, inverse_of: :creator
   has_many :assigned_items, class_name: "Item", foreign_key: "assignee_id", dependent: :restrict_with_error, inverse_of: :assignee
+
+  def admin?
+    role == "Admin"
+  end
 end

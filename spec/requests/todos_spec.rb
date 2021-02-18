@@ -1,11 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe 'Todos API', type: :request do
-  let(:user) { create(:user) }
+  let(:admin_user) { create(:user) }
+  let(:member_user) { create(:user, role: 'Member') }
   let!(:todos) { create_list(:todo, 10) }
-  let(:todo_id) { todos.first.id }
+  let(:todo) { todos.first }
+  let(:todo_id) { todo.id }
 
   describe 'GET /todos' do
+    before { login }
     before { get '/todos' }
 
     it 'returns todos' do
@@ -19,6 +22,7 @@ RSpec.describe 'Todos API', type: :request do
   end
 
   describe 'GET /todos/:id' do
+    before { login }
     before { get "/todos/#{todo_id}" }
 
     context 'when the record exists' do
@@ -46,55 +50,120 @@ RSpec.describe 'Todos API', type: :request do
   end
 
   describe 'POST /todos' do
-    let(:valid_attributes) { { todo: { title: 'Learn Elm', creator_id: user.id, status: 'created' } } }
+    before { login }
 
-    context 'when the request is valid' do
-      before { post '/todos', params: valid_attributes }
+    context 'when user is Admin' do
+      before { stub_user(admin_user) }
+      let(:valid_attributes) { { todo: { title: 'Learn Elm', creator_id: admin_user.id, status: 'created' } } }
+      context 'when the request is valid' do
+        before { post '/todos', params: valid_attributes }
 
-      it 'creates a todo' do
-        expect(json['title']).to eq('Learn Elm')
+        it 'creates a todo' do
+          expect(json['title']).to eq('Learn Elm')
+        end
+
+        it 'returns status code 201' do
+          expect(response).to have_http_status(201)
+        end
       end
 
-      it 'returns status code 201' do
-        expect(response).to have_http_status(201)
+      context 'when the request is invalid' do
+        before { post '/todos', params: { todo: { title: 'Foobar' } } }
+
+        it 'returns status code 400' do
+          expect(response).to have_http_status(400)
+        end
+
+        it 'returns a validation failure message' do
+          expect(response.body)
+            .to match(/Validation failed: Status can't be blank, Creator must exist/)
+        end
       end
     end
-
-    context 'when the request is invalid' do
+    context 'when user is not admin' do
+      before { stub_user(member_user) }
       before { post '/todos', params: { todo: { title: 'Foobar' } } }
-
-      it 'returns status code 400' do
-        expect(response).to have_http_status(400)
-      end
-
-      it 'returns a validation failure message' do
-        expect(response.body)
-          .to match(/Validation failed: Status can't be blank, Creator must exist/)
+      it 'return a validation failure message' do
+        expect(response.body).to match(/Only admin can perform this task/)
       end
     end
   end
 
   describe 'PUT /todos/:id' do
+    before { login }
     let(:valid_attributes) { { todo: { title: 'Shopping' } } }
 
-    context 'when the record exists' do
-      before { put "/todos/#{todo_id}", params: valid_attributes }
+    context 'when user is admin' do
+      context 'when todo belongs to the user' do
+        before { stub_user(todo.creator) }
 
-      it 'updates the record' do
-        expect(response.body).to be_empty
+        context 'when the record exists' do
+          before { put "/todos/#{todo_id}", params: valid_attributes }
+
+          it 'updates the record' do
+            expect(response.body).to be_empty
+          end
+
+          it 'returns status code 204' do
+            expect(response).to have_http_status(204)
+          end
+        end
       end
-
-      it 'returns status code 204' do
-        expect(response).to have_http_status(204)
+      context 'when todo does not belongs to user' do
+        before { stub_user(admin_user) }
+        before { put "/todos/#{todo_id}", params: valid_attributes }
+        it 'returns a validation failure message' do
+          expect(response.body).to match(/Only creator can perform this task/)
+        end
+      end
+    end
+    context 'when user is not admin' do
+      before{ stub_user(member_user) }
+      before { put "/todos/#{todo_id}", params: valid_attributes }
+      it 'returns a validation failure message' do
+        expect(response.body).to match(/Only admin can perform this task/)
       end
     end
   end
 
   describe 'DELETE /todos/:id' do
-    before { delete "/todos/#{todo_id}" }
 
-    it 'returns status code 204' do
-      expect(response).to have_http_status(204)
+    before { login }
+
+    context 'when user is admin' do
+
+      context 'when todo belongs to user' do
+
+        before { stub_user(todo.creator) }
+        before { delete "/todos/#{todo_id}" }
+
+        it 'returns status code 204' do
+          expect(response).to have_http_status(204)
+        end
+      end
+
+      context 'when todo does not belongs to user' do
+
+        before { stub_user(admin_user) }
+        before { delete "/todos/#{todo_id}" }
+
+        it 'returns a validation failure message' do
+          expect(response.body).to match(/Only creator can perform this task/)
+        end
+
+      end
+
+    end
+
+    context 'when user is not admin' do
+
+      before{ stub_user(member_user) }
+      before { delete "/todos/#{todo_id}" }
+
+      it 'returns a validation failure message' do
+        expect(response.body).to match(/Only admin can perform this task/)
+      end
+
     end
   end
 end

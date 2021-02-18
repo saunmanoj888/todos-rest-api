@@ -1,5 +1,7 @@
 class TodosController < ApplicationController
   before_action :set_todo, only: [:show, :update, :destroy]
+  before_action :authorize_user, except: [:index, :show]
+  before_action :validate_todo, only: [:update, :destroy]
 
   def index
     @todos = Todo.all.includes(:items)
@@ -33,5 +35,9 @@ class TodosController < ApplicationController
 
   def set_todo
     @todo = Todo.find(params[:id])
+  end
+
+  def validate_todo
+    render json: { message: 'Only creator can perform this task' }, status: :unauthorized unless @todo.creator_id == current_user.id
   end
 end
