@@ -3,9 +3,10 @@ class CreateTodos < ActiveRecord::Migration[6.1]
     create_table :todos do |t|
       t.string :title
       t.string :status
-      t.string :created_by
-      t.references :user
+      t.bigint :creator_id
       t.timestamps
+
+      t.index :creator_id
     end
   end
 end

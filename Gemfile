@@ -23,6 +23,7 @@ gem 'bcrypt', '~> 3.1.7'
 gem 'bootsnap', '>= 1.4.4', require: false
 gem 'active_model_serializers', '~> 0.10.12'
 gem 'jwt', '~> 1.5', '>= 1.5.4'
+gem 'awesome_print', '~> 1.8'
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 # gem 'rack-cors'
@@ -34,6 +35,7 @@ group :development, :test do
   gem 'factory_bot_rails', '~> 6.1'
   gem 'database_cleaner', '~> 1.8', '>= 1.8.5'
   gem 'shoulda-matchers', '~> 4.5', '>= 4.5.1'
+  gem 'shoulda-callback-matchers', '~> 1.1', '>= 1.1.4'
   gem 'faker', '~> 2.16'
 end
 

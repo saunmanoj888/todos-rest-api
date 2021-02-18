@@ -46,7 +46,7 @@ RSpec.describe 'Todos API', type: :request do
   end
 
   describe 'POST /todos' do
-    let(:valid_attributes) { { todo: { title: 'Learn Elm', created_by: 'manoj', status: 'created', user_id: user.id } } }
+    let(:valid_attributes) { { todo: { title: 'Learn Elm', creator_id: user.id, status: 'created' } } }
 
     context 'when the request is valid' do
       before { post '/todos', params: valid_attributes }
@@ -69,7 +69,7 @@ RSpec.describe 'Todos API', type: :request do
 
       it 'returns a validation failure message' do
         expect(response.body)
-          .to match(/Validation failed: Created by can't be blank/)
+          .to match(/Validation failed: Status can't be blank, Creator must exist/)
       end
     end
   end

@@ -25,7 +25,7 @@ RSpec.describe 'Items API', type: :request do
     context 'when the record exists' do
       it 'returns the item' do
         expect(json).not_to be_empty
-        expect(json['id']).to eq(todo_id)
+        expect(json['id']).to eq(item_id)
       end
 
       it 'returns status code 200' do
@@ -47,7 +47,7 @@ RSpec.describe 'Items API', type: :request do
   end
 
   describe 'POST /items' do
-    let(:valid_attributes) { { item: { name: 'Learn Elm', added_by: 'manoj', checked: false, user_id: user.id } } }
+    let(:valid_attributes) { { item: { name: 'Learn Elm', creator_id: user.id, checked: false, assignee_id: user.id } } }
 
     context 'when the request is valid' do
       before { post "/todos/#{todo_id}/items", params: valid_attributes }
@@ -70,7 +70,7 @@ RSpec.describe 'Items API', type: :request do
 
       it 'returns a validation failure message' do
         expect(response.body)
-          .to match(/Validation failed: Added by can't be blank/)
+          .to match(/Validation failed: Creator must exist, Assignee must exist/)
       end
     end
   end

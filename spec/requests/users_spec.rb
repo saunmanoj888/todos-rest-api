@@ -46,7 +46,7 @@ RSpec.describe 'Users API', type: :request do
   end
 
   describe 'POST /users' do
-    let(:valid_attributes) { { user: { username: 'manoj' } } }
+    let(:valid_attributes) { { user: { username: 'manoj', password: "qwerty", role: "Admin" } } }
 
     context 'when the request is valid' do
       before { post '/users', params: valid_attributes }
@@ -61,7 +61,7 @@ RSpec.describe 'Users API', type: :request do
     end
 
     context 'when the request is invalid' do
-      before { post '/users', params: { user: { title: 'Foobar' } } }
+      before { post '/users', params: { user: { password: "qwerty", role: "Admin" } } }
 
       it 'returns status code 400' do
         expect(response).to have_http_status(400)

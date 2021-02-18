@@ -1,9 +1,11 @@
 FactoryBot.define do
   factory :item do
-    user
+    creator factory: :user
+    assignee factory: :user
     todo
     name { Faker::Lorem.word }
-    added_by { user.username }
+    creator_id { creator.id }
+    assignee_id { assignee.id }
     checked { false }
   end
 end

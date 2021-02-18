@@ -1,8 +1,8 @@
 FactoryBot.define do
   factory :todo do
-    user
+    creator factory: :user
     title { Faker::Lorem.word }
     status { 'created' }
-    created_by { user.username }
+    creator_id { creator.id }
   end
 end

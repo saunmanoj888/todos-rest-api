@@ -1,3 +1,3 @@
 class ItemSerializer < ActiveModel::Serializer
-  attributes :id, :name, :added_by, :checked
+  attributes :id, :name, :creator_id, :assignee_id, :checked
 end

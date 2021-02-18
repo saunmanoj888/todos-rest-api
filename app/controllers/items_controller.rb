@@ -29,7 +29,7 @@ class ItemsController < ApplicationController
   private
 
   def item_params
-    params.require(:item).permit(:name, :added_by, :checked, :user_id)
+    params.require(:item).permit(:name, :assignee_id, :checked, :creator_id)
   end
 
   def set_todo

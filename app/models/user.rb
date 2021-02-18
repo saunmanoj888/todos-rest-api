@@ -3,6 +3,7 @@ class User < ApplicationRecord
   validates_presence_of :username, :password, :role
   validates_inclusion_of :role, in: ['Admin', 'Member']
 
-  has_many :todos, dependent: :destroy
-  has_many :items, dependent: :destroy
+  has_many :todos, foreign_key: "creator_id", dependent: :destroy, inverse_of: :creator
+  has_many :created_items, class_name: "Item", foreign_key: "creator_id", dependent: :restrict_with_error, inverse_of: :creator
+  has_many :assigned_items, class_name: "Item", foreign_key: "assignee_id", dependent: :restrict_with_error, inverse_of: :assignee
 end

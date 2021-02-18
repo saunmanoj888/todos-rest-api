@@ -18,23 +18,23 @@ ActiveRecord::Schema.define(version: 2021_02_17_090145) do
   create_table "items", force: :cascade do |t|
     t.string "name"
     t.boolean "checked", default: false
-    t.string "added_by"
     t.bigint "todo_id"
-    t.bigint "user_id"
+    t.bigint "creator_id"
+    t.bigint "assignee_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["assignee_id"], name: "index_items_on_assignee_id"
+    t.index ["creator_id"], name: "index_items_on_creator_id"
     t.index ["todo_id"], name: "index_items_on_todo_id"
-    t.index ["user_id"], name: "index_items_on_user_id"
   end
 
   create_table "todos", force: :cascade do |t|
     t.string "title"
     t.string "status"
-    t.string "created_by"
-    t.bigint "user_id"
+    t.bigint "creator_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["user_id"], name: "index_todos_on_user_id"
+    t.index ["creator_id"], name: "index_todos_on_creator_id"
   end
 
   create_table "users", force: :cascade do |t|
