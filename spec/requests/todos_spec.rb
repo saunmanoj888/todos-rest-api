@@ -58,8 +58,8 @@ RSpec.describe 'Todos API', type: :request do
         context 'when the record does not exist' do
           before { get '/todos/100' }
 
-          it 'returns status code 401' do
-            expect(response).to have_http_status(401)
+          it 'returns status code 404' do
+            expect(response).to have_http_status(404)
           end
 
           it 'returns a not found message' do
@@ -142,10 +142,10 @@ RSpec.describe 'Todos API', type: :request do
               expect(response).to have_http_status(200)
             end
           end
-          context 'when record is invalid - status changes from draft to completed' do
-            before { put "/todos/#{todo_id}", params: { todo: { title: 'Shopping', status: 'completed' } } }
+          context 'when record is invalid' do
+            before { put "/todos/#{todo_id}", params: { todo: { title: nil } } }
             it 'returns a validation failure message' do
-              expect(response.body).to match(/Validation failed: Can only mark object complete after it was first marked in progress/)
+              expect(response.body).to match(/Validation failed: Title can't be blank/)
             end
           end
         end

@@ -11,6 +11,17 @@ RSpec.describe Todo, type: :model do
   it { should have_many(:items).dependent(:destroy) }
   it { should belong_to(:creator).class_name('User').with_foreign_key('creator_id').inverse_of(:todos) }
 
+  describe 'Custom validations' do
+    describe 'Status Change' do
+      context 'When status is updated from draft to completed' do
+        before {todo.update(status: 'completed') }
+        it 'returns a validation failure message' do
+          expect(todo.errors.full_messages).to eq(['Cannnot mark object completed from draft'])
+        end
+      end
+    end
+  end
+
   describe "#completed?" do
 
     context 'when items exists' do
