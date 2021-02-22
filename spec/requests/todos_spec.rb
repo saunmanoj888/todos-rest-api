@@ -10,12 +10,13 @@ RSpec.describe 'Todos API', type: :request do
 
   describe 'GET /todos' do
     before { login }
-    before { get '/todos' }
 
     context 'When User is Admin' do
-      before { set_current_user(admin_user) }
-      before { todo_created_by_admin }
-      before { get '/todos' }
+      before do
+        set_current_user(admin_user)
+        todo_created_by_admin
+        get '/todos'
+      end
 
       it 'returns all todos belonging to the User only' do
         expect(json).not_to be_empty
@@ -28,8 +29,10 @@ RSpec.describe 'Todos API', type: :request do
     end
 
     context 'When User is Member' do
-      before { set_current_user(member_user) }
-      before { get '/todos' }
+      before do
+        set_current_user(member_user)
+        get '/todos'
+      end
 
       it 'returns a validation message' do
         expect(response.body).to match(/Only admin can perform this task/)
@@ -75,8 +78,10 @@ RSpec.describe 'Todos API', type: :request do
       end
     end
     context 'When User is Member' do
-      before { set_current_user(member_user) }
-      before { get "/todos/#{todo_id}" }
+      before do
+        set_current_user(member_user)
+        get "/todos/#{todo_id}"
+      end
 
       it 'returns a validation message' do
         expect(response.body).to match(/Only admin can perform this task/)
@@ -115,8 +120,11 @@ RSpec.describe 'Todos API', type: :request do
       end
     end
     context 'when user is Member' do
-      before { set_current_user(member_user) }
-      before { post '/todos', params: { todo: { title: 'Foobar' } } }
+      before do
+        set_current_user(member_user)
+        post '/todos', params: { todo: { title: 'Foobar' } }
+      end
+
       it 'return a validation failure message' do
         expect(response.body).to match(/Only admin can perform this task/)
       end
@@ -151,16 +159,22 @@ RSpec.describe 'Todos API', type: :request do
         end
       end
       context 'when todo does not belongs to user' do
-        before { set_current_user(admin_user) }
-        before { put "/todos/#{todo_id}", params: valid_attributes }
+        before do
+          set_current_user(admin_user)
+          put "/todos/#{todo_id}", params: valid_attributes
+        end
+
         it 'returns a validation failure message' do
           expect(response.body).to match(/Only Todo creator can perform this task/)
         end
       end
     end
     context 'when user is Member' do
-      before{ set_current_user(member_user) }
-      before { put "/todos/#{todo_id}", params: valid_attributes }
+      before do
+        set_current_user(member_user)
+        put "/todos/#{todo_id}", params: valid_attributes
+      end
+
       it 'returns a validation failure message' do
         expect(response.body).to match(/Only admin can perform this task/)
       end
@@ -174,9 +188,10 @@ RSpec.describe 'Todos API', type: :request do
     context 'when user is admin' do
 
       context 'when todo belongs to user' do
-
-        before { set_current_user(todo.creator) }
-        before { delete "/todos/#{todo_id}" }
+        before do
+          set_current_user(todo.creator)
+          delete "/todos/#{todo_id}"
+        end
 
         it 'returns status code 204' do
           expect(response).to have_http_status(204)
@@ -184,9 +199,10 @@ RSpec.describe 'Todos API', type: :request do
       end
 
       context 'when todo does not belongs to user' do
-
-        before { set_current_user(admin_user) }
-        before { delete "/todos/#{todo_id}" }
+        before do
+          set_current_user(admin_user)
+          delete "/todos/#{todo_id}"
+        end
 
         it 'returns a validation failure message' do
           expect(response.body).to match(/Only Todo creator can perform this task/)
@@ -197,9 +213,10 @@ RSpec.describe 'Todos API', type: :request do
     end
 
     context 'when user is Member' do
-
-      before{ set_current_user(member_user) }
-      before { delete "/todos/#{todo_id}" }
+      before do
+        set_current_user(member_user)
+        delete "/todos/#{todo_id}"
+      end
 
       it 'returns a validation failure message' do
         expect(response.body).to match(/Only admin can perform this task/)

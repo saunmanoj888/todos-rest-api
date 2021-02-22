@@ -10,8 +10,10 @@ RSpec.describe 'Users API', type: :request do
     before { login }
 
     context 'when User with Admin roles logs in' do
-      before { set_current_user(admin_user) }
-      before { get '/users' }
+      before do
+        set_current_user(admin_user)
+        get '/users'
+      end
 
       it 'returns all users' do
         expect(json).not_to be_empty
@@ -23,8 +25,10 @@ RSpec.describe 'Users API', type: :request do
       end
     end
     context 'when User with Member roles logs in' do
-      before { set_current_user(member_user) }
-      before { get '/users' }
+      before do
+        set_current_user(member_user)
+        get '/users'
+      end
 
       it 'returns details of self' do
         expect(json).not_to be_empty
@@ -41,8 +45,10 @@ RSpec.describe 'Users API', type: :request do
     before { login }
 
     context 'when User is Admin' do
-      before { set_current_user(admin_user) }
-      before { get "/users/#{user_id}" }
+      before do
+        set_current_user(admin_user)
+        get "/users/#{user_id}"
+      end
 
       context 'when the record exists' do
         it 'returns the user' do
@@ -69,8 +75,10 @@ RSpec.describe 'Users API', type: :request do
     end
 
     context 'when User is not Admin' do
-      before { set_current_user(member_user) }
-      before { get "/users/#{user_id}" }
+      before do
+        set_current_user(member_user)
+        get "/users/#{user_id}"
+      end
 
       it 'returns a validation message' do
         expect(response.body).to match(/Only admin can perform this task/)
@@ -110,8 +118,11 @@ RSpec.describe 'Users API', type: :request do
       end
     end
     context 'when User with Member role logs in' do
-      before { set_current_user(member_user) }
-      before { post '/users', params: valid_attributes }
+      before do
+        set_current_user(member_user)
+        post '/users', params: valid_attributes
+      end
+
       it 'returns a validation message' do
         expect(response.body).to match(/Only admin can perform this task/)
       end
@@ -158,8 +169,11 @@ RSpec.describe 'Users API', type: :request do
       end
     end
     context 'when User with member role updates User details' do
-      before { set_current_user(member_user) }
-      before { put "/users/#{user_id}", params: valid_attributes }
+      before do
+        set_current_user(member_user)
+        put "/users/#{user_id}", params: valid_attributes
+      end
+
       it 'returns a validation message' do
         expect(response.body).to match(/Only admin can perform this task/)
       end
@@ -185,8 +199,11 @@ RSpec.describe 'Users API', type: :request do
       end
     end
     context 'When User with Member role deletes a User' do
-      before { set_current_user(member_user) }
-      before { delete "/users/#{user_id}" }
+      before do
+        set_current_user(member_user)
+        delete "/users/#{user_id}"
+      end
+
       it 'returns a validation message' do
         expect(response.body).to match(/Only admin can perform this task/)
       end

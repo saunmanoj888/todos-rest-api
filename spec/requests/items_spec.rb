@@ -14,8 +14,11 @@ RSpec.describe 'Items API', type: :request do
 
     context 'When User is Admin' do
       context 'When User searches items for todo created by self' do
-        before { set_current_user(item.creator) }
-        before { get "/todos/#{todo_id}/items" }
+        before do
+          set_current_user(item.creator)
+          get "/todos/#{todo_id}/items"
+        end
+
         it 'returns items' do
           expect(json).not_to be_empty
           expect(json.size).to eq(1)
@@ -26,16 +29,22 @@ RSpec.describe 'Items API', type: :request do
         end
       end
       context 'When User searches items for todo not created by self' do
-        before { set_current_user(admin_user) }
-        before { get "/todos/#{todo_id}/items" }
+        before do
+          set_current_user(admin_user)
+          get "/todos/#{todo_id}/items"
+        end
+
         it 'returns a validation failure message' do
           expect(response.body).to match(/This Todo does not belongs to you/)
         end
       end
     end
     context 'When User is Member' do
-      before { set_current_user(member_user) }
-      before { get "/todos/#{todo_id}/items" }
+      before do
+        set_current_user(member_user)
+        get "/todos/#{todo_id}/items"
+      end
+
       it 'returns a validation failure message' do
         expect(response.body).to match(/Only admin can perform this task/)
       end
@@ -48,8 +57,10 @@ RSpec.describe 'Items API', type: :request do
     context 'When User is Admin' do
       context 'When record exists' do
         context 'When item is assigned to User' do
-          before { set_current_user(admin_user) }
-          before { get "/items/#{item_assigned_to_admin.id}" }
+          before do
+            set_current_user(admin_user)
+            get "/items/#{item_assigned_to_admin.id}"
+          end
 
           it 'returns the item' do
             expect(json).not_to be_empty
@@ -61,8 +72,10 @@ RSpec.describe 'Items API', type: :request do
           end
         end
         context 'When item is created by User' do
-          before { set_current_user(item.creator) }
-          before { get "/items/#{item.id}" }
+          before do
+            set_current_user(item.creator)
+            get "/items/#{item.id}"
+          end
 
           it 'returns the item' do
             expect(json).not_to be_empty
@@ -70,16 +83,22 @@ RSpec.describe 'Items API', type: :request do
           end
         end
         context 'When item neither created by/assigned to User' do
-          before { set_current_user(admin_user) }
-          before { get "/items/#{item_id}" }
+          before do
+            set_current_user(admin_user)
+            get "/items/#{item_id}"
+          end
+
           it 'returns a validation failure message' do
             expect(response.body).to match(/Item does not belongs to the User/)
           end
         end
       end
       context 'when the record does not exist' do
-        before { set_current_user(admin_user) }
-        before { get '/items/100' }
+        before do
+          set_current_user(admin_user)
+          get '/items/100'
+        end
+
         it 'returns status code 404' do
           expect(response).to have_http_status(404)
         end
@@ -151,8 +170,11 @@ RSpec.describe 'Items API', type: :request do
     end
 
     context 'when user is Member' do
-      before { set_current_user(member_user) }
-      before { post "/todos/#{todo_id}/items", params: valid_attributes }
+      before do 
+        set_current_user(member_user)
+        post "/todos/#{todo_id}/items", params: valid_attributes
+      end
+
       it 'returns a validation failure message' do
         expect(response.body).to match(/Only admin can perform this task/)
       end
@@ -166,8 +188,10 @@ RSpec.describe 'Items API', type: :request do
     context 'when user is admin' do
 
       context 'when todo belongs to the user' do
-        before { set_current_user(item.creator) }
-        before { put "/items/#{item_id}", params: valid_attributes }
+        before do
+          set_current_user(item.creator)
+          put "/items/#{item_id}", params: valid_attributes
+        end
 
         it 'updates the record' do
           expect(json['checked']).to eq(true)
@@ -179,9 +203,10 @@ RSpec.describe 'Items API', type: :request do
       end
 
       context 'when todo does not belongs to the user' do
-
-        before { set_current_user(admin_user) }
-        before { put "/items/#{item_id}", params: valid_attributes }
+        before do
+          set_current_user(admin_user)
+          put "/items/#{item_id}", params: valid_attributes
+        end
 
         it 'returns a validation failure message' do
           expect(response.body).to match(/Item does not belongs to the User/)
@@ -227,9 +252,10 @@ RSpec.describe 'Items API', type: :request do
     context 'when user is admin' do
 
       context 'when todo belongs to user' do
-
-        before { set_current_user(item.creator) }
-        before { delete "/items/#{item_id}" }
+        before do
+          set_current_user(item.creator)
+          delete "/items/#{item_id}"
+        end
 
         it 'returns status code 204' do
           expect(response).to have_http_status(204)
@@ -237,9 +263,10 @@ RSpec.describe 'Items API', type: :request do
       end
 
       context 'when todo does not belongs to user' do
-
-        before { set_current_user(admin_user) }
-        before { delete "/items/#{item_id}" }
+        before do
+          set_current_user(admin_user)
+          delete "/items/#{item_id}"
+        end
 
         it 'returns a validation failure message' do
           expect(response.body).to match(/This Todo does not belongs to you/)
@@ -250,9 +277,10 @@ RSpec.describe 'Items API', type: :request do
     end
 
     context 'when user is not admin' do
-
-      before{ set_current_user(member_user) }
-      before { delete "/items/#{item_id}" }
+      before do
+        set_current_user(member_user)
+        delete "/items/#{item_id}"
+      end
 
       it 'returns a validation failure message' do
         expect(response.body).to match(/Only admin can perform this task/)
