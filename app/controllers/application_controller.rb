@@ -41,12 +41,12 @@ class ApplicationController < ActionController::API
   end
 
   def authorize_user
-    return if logged_in? && current_user.admin?
+    return if current_user&.admin?
 
     render json: { message: 'Only admin can perform this task' }, status: :unauthorized
   end
 
   def current_user
-    @user
+    @current_user ||= @user
   end
 end

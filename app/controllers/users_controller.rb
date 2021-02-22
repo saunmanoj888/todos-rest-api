@@ -1,9 +1,10 @@
 class UsersController < ApplicationController
   before_action :set_user, only: %i[show update destroy]
-  before_action :authorized, only: %i[auto_login]
+  before_action :authorized, except: %i[create login]
+  before_action :authorize_user, only: %i[show create update destroy]
 
   def index
-    @users = User.all
+    @users = current_user.admin? ? User.all : [current_user]
     json_response(@users)
   end
 
@@ -17,11 +18,15 @@ class UsersController < ApplicationController
   end
 
   def update
-    @user.update(user_params)
-    head :no_content
+    return json_response({ error: 'Cannot update another User details' }, :unauthorized) unless @user == current_user
+
+    @user.update!(user_params)
+    json_response(@user)
   end
 
   def destroy
+    return json_response({ error: 'Cannot delete another User Account' }, :unauthorized) unless @user == current_user
+
     @user.destroy
     head :no_content
   end

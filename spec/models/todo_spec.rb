@@ -7,6 +7,7 @@ RSpec.describe Todo, type: :model do
 
   it { should validate_presence_of(:title) }
   it { should validate_presence_of(:status) }
+  it { should validate_inclusion_of(:status).in_array(%w[draft inprogress completed]) }
   it { should have_many(:items).dependent(:destroy) }
   it { should belong_to(:creator).class_name('User').with_foreign_key('creator_id').inverse_of(:todos) }
 

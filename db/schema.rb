@@ -30,7 +30,7 @@ ActiveRecord::Schema.define(version: 2021_02_17_090145) do
 
   create_table "todos", force: :cascade do |t|
     t.string "title"
-    t.string "status"
+    t.string "status", default: "draft"
     t.bigint "creator_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
