@@ -15,8 +15,7 @@ class ItemsController < ApplicationController
   end
 
   def create
-    @item = @todo.items.new(item_params)
-    @item.creator = current_user
+    @item = @todo.items.new(item_params.merge(creator_id: current_user.id))
     @item.save!
     json_response(@item, :created)
   end
