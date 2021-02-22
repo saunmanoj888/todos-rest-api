@@ -29,7 +29,7 @@ class ApplicationController < ActionController::API
     return unless decoded_token
 
     user_id = decoded_token[0]['user_id']
-    @user = User.find_by(id: user_id)
+    @logged_in_user = User.find_by(id: user_id)
   end
 
   def logged_in?
@@ -47,6 +47,6 @@ class ApplicationController < ActionController::API
   end
 
   def current_user
-    @current_user ||= @user
+    @current_user ||= @logged_in_user
   end
 end

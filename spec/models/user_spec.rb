@@ -5,6 +5,7 @@ RSpec.describe User, type: :model do
   let(:member_user) { create(:user, role: "Member") }
 
   it { should validate_presence_of(:username) }
+  it { should validate_uniqueness_of(:username) }
   it { should validate_presence_of(:password) }
   it { should validate_presence_of(:role) }
   it { should validate_inclusion_of(:role).in_array(['Admin', 'Member']) }

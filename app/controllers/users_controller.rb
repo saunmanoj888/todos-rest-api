@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_user, only: %i[show update destroy]
-  before_action :authorized, except: %i[create login]
+  before_action :authorized, except: %i[login]
   before_action :authorize_user, only: %i[show create update destroy]
 
   def index
