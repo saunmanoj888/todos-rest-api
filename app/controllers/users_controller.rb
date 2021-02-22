@@ -18,14 +18,14 @@ class UsersController < ApplicationController
   end
 
   def update
-    return json_response({ error: 'Cannot update another User details' }, :unauthorized) unless @user == current_user
+    return json_response({ error: 'Cannot update another User details' }, :unauthorized) if @user != current_user
 
     @user.update!(user_params)
     json_response(@user)
   end
 
   def destroy
-    return json_response({ error: 'Cannot delete another User Account' }, :unauthorized) unless @user == current_user
+    return json_response({ error: 'Cannot delete another User Account' }, :unauthorized) if @user != current_user
 
     @user.destroy
     head :no_content

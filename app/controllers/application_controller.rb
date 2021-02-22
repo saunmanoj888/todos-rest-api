@@ -26,7 +26,7 @@ class ApplicationController < ActionController::API
   end
 
   def logged_in_user
-    return unless decoded_token
+    return if decoded_token.blank?
 
     user_id = decoded_token[0]['user_id']
     @logged_in_user = User.find_by(id: user_id)
