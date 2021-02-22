@@ -180,11 +180,11 @@ RSpec.describe 'Items API', type: :request do
 
       context 'when todo does not belongs to the user' do
 
-        before { set_current_user(item.assignee) }
+        before { set_current_user(admin_user) }
         before { put "/items/#{item_id}", params: valid_attributes }
 
         it 'returns a validation failure message' do
-          expect(response.body).to match(/This Todo does not belongs to you/)
+          expect(response.body).to match(/Item does not belongs to the User/)
         end
       end
 
@@ -193,10 +193,28 @@ RSpec.describe 'Items API', type: :request do
     context 'when user is Member' do
 
       before { set_current_user(member_user) }
-      before { put "/items/#{item_assigned_to_member.id}", params: valid_attributes }
 
-      it 'returns a validation failure message' do
-        expect(response.body).to match(/Only admin can perform this task/)
+      context 'When item is assigned to the User' do
+        context 'When User only updates Checked' do
+          before { put "/items/#{item_assigned_to_member.id}", params: valid_attributes }
+          it 'updates the record' do
+            expect(json['checked']).to eq(true)
+          end
+        end
+        context 'When User updates details other than checked' do
+          before { put "/items/#{item_assigned_to_member.id}", params: { item: { checked: true, name: 'test' } } }
+          it 'does not change any other details except checked' do
+            expect(json['name']).to_not eq('test')
+            expect(json['checked']).to eq(true)
+          end
+        end
+      end
+
+      context 'When item is not assigned to the User' do
+        before { put "/items/#{item.id}", params: valid_attributes }
+        it 'returns a validation failure message' do
+          expect(response.body).to match(/Item does not belongs to the User/)
+        end
       end
 
     end
@@ -268,56 +286,6 @@ RSpec.describe 'Items API', type: :request do
       it 'returns all the items assigned to the User' do
         expect(json).not_to be_empty
         expect(json.size).to eq(1)
-      end
-    end
-  end
-
-  describe 'PUT /update_checked' do
-    before { login }
-    context 'When User Is Admin' do
-      context 'When todo is created by User' do
-        before { set_current_user(item.creator) }
-        before { item }
-        before { put "/items/#{item.id}/update_checked", params: { item: { checked: true } } }
-        it 'marks the item checked/unchecked' do
-          expect(json['checked']).to eq(true)
-        end
-      end
-      context 'When todo is not created the User' do
-        context 'When item is assigned to the User' do
-          before { set_current_user(admin_user) }
-          before { item_assigned_to_admin }
-          before { put "/items/#{item_assigned_to_admin.id}/update_checked", params: { item: { checked: true } } }
-          it 'marks the items checked/unchecked' do
-            expect(json['checked']).to eq(true)
-          end
-        end
-        context 'When item is not assigned to the User' do
-          before { set_current_user(admin_user) }
-          before { item }
-          before { put "/items/#{item.id}/update_checked", params: { item: { checked: true } } }
-          it 'returns a validation failure message' do
-            expect(response.body).to match(/Item does not belongs to the User/)
-          end
-        end
-      end
-    end
-    context 'When User is Member' do
-      context 'When item is assigned to the User' do
-        before { set_current_user(member_user) }
-        before { item_assigned_to_member }
-        before { put "/items/#{item_assigned_to_member.id}/update_checked", params: { item: { checked: true } } }
-        it 'marks the items checked/unchecked' do
-          expect(json['checked']).to eq(true)
-        end
-      end
-      context 'When item is not assigned to the User' do
-        before { set_current_user(member_user) }
-        before { item }
-        before { put "/items/#{item.id}/update_checked", params: { item: { checked: true } } }
-        it 'returns a validation failure message' do
-          expect(response.body).to match(/Item does not belongs to the User/)
-        end
       end
     end
   end
