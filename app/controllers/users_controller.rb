@@ -13,22 +13,32 @@ class UsersController < ApplicationController
   end
 
   def create
-    @user = User.create!(user_params)
-    json_response(@user, :created)
+    @user = User.new(user_params)
+    if @user.save
+      json_response(@user, :created)
+    else
+      json_response({ message: @user.errors.full_messages }, :bad_request)
+    end
   end
 
   def update
     return json_response({ error: 'Cannot update another User details' }, :unauthorized) if @user != current_user
 
-    @user.update!(user_params)
-    json_response(@user)
+    if @user.update(user_params)
+      json_response(@user)
+    else
+      json_response({ message: @user.errors.full_messages }, :bad_request)
+    end
   end
 
   def destroy
     return json_response({ error: 'Cannot delete another User Account' }, :unauthorized) if @user != current_user
 
-    @user.destroy
-    head :no_content
+    if @user.destroy
+      json_response({ message: 'User destroyed successfully' })
+    else
+      json_response({ message: @user.errors.full_messages }, :bad_request)
+    end
   end
 
   def login

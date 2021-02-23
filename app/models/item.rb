@@ -5,13 +5,17 @@ class Item < ApplicationRecord
   belongs_to :creator, class_name: 'User', foreign_key: 'creator_id', inverse_of: :created_items
   belongs_to :assignee, class_name: 'User', foreign_key: 'assignee_id', inverse_of: :assigned_items
 
-  after_update :update_todo_status
+  after_update :update_todo_status, if: :checked_updated?
 
   after_create :mark_todo_in_progress
 
   scope :unchecked_items, -> { where(checked: false) }
 
   private
+
+  def checked_updated?
+    saved_changes[:checked].present?
+  end
 
   def update_todo_status
     if todo.all_items_checked? && todo.status != 'completed'

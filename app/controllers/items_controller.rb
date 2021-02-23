@@ -15,18 +15,28 @@ class ItemsController < ApplicationController
   end
 
   def create
-    @item = @todo.items.create!(item_params.merge(creator_id: current_user.id))
-    json_response(@item, :created)
+    @item = @todo.items.new(item_params.merge(creator_id: current_user.id))
+    if @item.save
+      json_response(@item, :created)
+    else
+      json_response({ message: @item.errors.full_messages }, :bad_request)
+    end
   end
 
   def update
-    @item.update!(item_params)
-    json_response(@item)
+    if @item.update(item_params)
+      json_response(@item)
+    else
+      json_response({ message: @item.errors.full_messages }, :bad_request)
+    end
   end
 
   def destroy
-    @item.destroy
-    head :no_content
+    if @item.destroy
+      json_response({ message: 'Item destroyed successfully' })
+    else
+      json_response({ message: @item.errors.full_messages }, :bad_request)
+    end
   end
 
   def all_items

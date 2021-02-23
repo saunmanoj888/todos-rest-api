@@ -41,7 +41,7 @@ RSpec.describe Todo, type: :model do
   end
 
   describe 'Custom validations' do
-    describe 'Status Change' do
+    describe 'Validate Status Change' do
       context 'When status is updated from draft to completed' do
         before {todo.update(status: 'completed') }
         it 'returns a validation failure message' do

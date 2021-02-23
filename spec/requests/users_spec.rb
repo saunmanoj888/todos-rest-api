@@ -18,6 +18,7 @@ RSpec.describe 'Users API', type: :request do
       it 'returns all users' do
         expect(json).not_to be_empty
         expect(json.size).to eq(11)
+        expect(json.first).to have_key('id')
       end
 
       it 'returns status code 200' do
@@ -33,6 +34,7 @@ RSpec.describe 'Users API', type: :request do
       it 'returns details of self' do
         expect(json).not_to be_empty
         expect(json.size).to eq(1)
+        expect(json.first).to have_key('id')
       end
 
       it 'returns status code 200' do
@@ -112,8 +114,7 @@ RSpec.describe 'Users API', type: :request do
         end
 
         it 'returns a validation failure message' do
-          expect(response.body)
-            .to match(/Validation failed: Username can't be blank/)
+          expect(response.body).to match(/Username can't be blank/)
         end
       end
     end
@@ -149,14 +150,14 @@ RSpec.describe 'Users API', type: :request do
             end
           end
           context 'when the request is invalid' do
-            before { put "/users/#{admin_user.id}", params: { user: { username: nil } } }
+            before { put "/users/#{admin_user.id}", params: { user: { username: nil, password: 'qwerty' } } }
 
             it 'returns status code 400' do
               expect(response).to have_http_status(400)
             end
 
             it 'returns a validation failure message' do
-              expect(response.body).to match(/Validation failed: Username can't be blank/)
+              expect(response.body).to match(/Username can't be blank/)
             end
           end
         end
@@ -187,8 +188,8 @@ RSpec.describe 'Users API', type: :request do
       before { set_current_user(admin_user) }
       context 'When User deletes self Account' do
         before { delete "/users/#{admin_user.id}" }
-        it 'returns status code 204' do
-          expect(response).to have_http_status(204)
+        it 'returns status code 200' do
+          expect(response).to have_http_status(200)
         end
       end
       context 'When User deletes another Users Account' do

@@ -13,18 +13,28 @@ class TodosController < ApplicationController
   end
 
   def create
-    @todo = Todo.create!(todo_params.merge(creator_id: current_user.id))
-    json_response(@todo, :created)
+    @todo = Todo.new(todo_params.merge(creator_id: current_user.id))
+    if @todo.save
+      json_response(@todo, :created)
+    else
+      json_response({ message: @todo.errors.full_messages }, :bad_request)
+    end
   end
 
   def update
-    @todo.update!(todo_params)
-    json_response(@todo)
+    if @todo.update(todo_params)
+      json_response(@todo)
+    else
+      json_response({ message: @todo.errors.full_messages }, :bad_request)
+    end
   end
 
   def destroy
-    @todo.destroy
-    head :no_content
+    if @todo.destroy
+      json_response({ message: 'Todo destroyed successfully' })
+    else
+      json_response({ message: @todo.errors.full_messages }, :bad_request)
+    end
   end
 
   private

@@ -1,7 +1,7 @@
 class Todo < ApplicationRecord
   validates_presence_of :title, :status
   validates_inclusion_of :status, in: %w[draft in_progress completed in_active on_hold]
-  validate :status_change, if: :status_changed?
+  validate :validate_status_change, if: :status_changed?
 
   has_many :items, dependent: :destroy
   belongs_to :creator, class_name: 'User', foreign_key: 'creator_id', inverse_of: :todos
@@ -26,7 +26,7 @@ class Todo < ApplicationRecord
     completed:   %w[in_progress]
   }.freeze
 
-  def status_change
+  def validate_status_change
     return true if TODO_STATUSES[status&.to_sym]&.include? status_was
 
     errors.add(:base, "Cannnot mark object #{status} from #{status_was}")

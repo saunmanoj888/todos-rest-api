@@ -21,6 +21,7 @@ RSpec.describe 'Todos API', type: :request do
       it 'returns all todos belonging to the User only' do
         expect(json).not_to be_empty
         expect(json.size).to eq(1)
+        expect(json.first).to have_key('id')
       end
 
       it 'returns status code 200' do
@@ -111,7 +112,7 @@ RSpec.describe 'Todos API', type: :request do
         end
 
         it 'returns a validation failure message' do
-          expect(response.body).to match(/Validation failed: Title can't be blank/)
+          expect(response.body).to match(/Title can't be blank/)
         end
       end
     end
@@ -149,7 +150,7 @@ RSpec.describe 'Todos API', type: :request do
           context 'when record is invalid' do
             before { put "/todos/#{todo_id}", params: { todo: { title: nil } } }
             it 'returns a validation failure message' do
-              expect(response.body).to match(/Validation failed: Title can't be blank/)
+              expect(response.body).to match(/Title can't be blank/)
             end
           end
         end
@@ -189,8 +190,8 @@ RSpec.describe 'Todos API', type: :request do
           delete "/todos/#{todo_id}"
         end
 
-        it 'returns status code 204' do
-          expect(response).to have_http_status(204)
+        it 'returns status code 200' do
+          expect(response).to have_http_status(200)
         end
       end
 

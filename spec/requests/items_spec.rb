@@ -22,6 +22,7 @@ RSpec.describe 'Items API', type: :request do
         it 'returns items' do
           expect(json).not_to be_empty
           expect(json.size).to eq(1)
+          expect(json.first).to have_key('id')
         end
 
         it 'returns status code 200' do
@@ -156,7 +157,7 @@ RSpec.describe 'Items API', type: :request do
 
           it 'returns a validation failure message' do
             expect(response.body)
-              .to match(/Validation failed: Assignee must exist/)
+              .to match(/Assignee must exist/)
           end
         end
       end
@@ -170,7 +171,7 @@ RSpec.describe 'Items API', type: :request do
     end
 
     context 'when user is Member' do
-      before do 
+      before do
         set_current_user(member_user)
         post "/todos/#{todo_id}/items", params: valid_attributes
       end
@@ -257,8 +258,8 @@ RSpec.describe 'Items API', type: :request do
           delete "/items/#{item_id}"
         end
 
-        it 'returns status code 204' do
-          expect(response).to have_http_status(204)
+        it 'returns status code 200' do
+          expect(response).to have_http_status(200)
         end
       end
 
