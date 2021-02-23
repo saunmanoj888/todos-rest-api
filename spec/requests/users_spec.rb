@@ -234,4 +234,18 @@ RSpec.describe 'Users API', type: :request do
       end
     end
   end
+
+  describe 'Test webmock stubbing' do
+    before do
+      stub_request(:get, /api.github.com/).
+        with(headers: {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
+        to_return(status: 200, body: "stubbed response", headers: {})
+    end
+    it 'sends api request to github' do
+       uri = URI('https://api.github.com/repos/thoughtbot/factory_girl/contributors')
+       response = Net::HTTP.get(uri)
+       expect(response).to be_an_instance_of(String)
+       expect(response).to eq('stubbed response')
+    end
+  end
 end
