@@ -13,8 +13,7 @@ class TodosController < ApplicationController
   end
 
   def create
-    @todo = Todo.new(todo_params.merge(creator_id: current_user.id))
-    @todo.save!
+    @todo = Todo.create!(todo_params.merge(creator_id: current_user.id))
     json_response(@todo, :created)
   end
 

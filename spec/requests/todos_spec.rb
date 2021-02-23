@@ -61,10 +61,6 @@ RSpec.describe 'Todos API', type: :request do
         context 'when the record does not exist' do
           before { get '/todos/100' }
 
-          it 'returns status code 401' do
-            expect(response).to have_http_status(401)
-          end
-
           it 'returns a not found message' do
             expect(response.body).to match(/Couldn't find Todo/)
           end
