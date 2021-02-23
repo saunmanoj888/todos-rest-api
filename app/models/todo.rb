@@ -8,6 +8,8 @@ class Todo < ApplicationRecord
 
   before_update :check_all_associated_items, :mark_todos_on_hold, if: :status_changed?
 
+  before_save :set_status_changed_at, if: :can_update_status_changed_at?
+
   scope :with_status, ->(status) { where(status: status) }
 
   def all_items_checked?
@@ -41,5 +43,13 @@ class Todo < ApplicationRecord
 
     remaining_todos  = creator.todos.with_status('in_progress').where.not(id: id)
     remaining_todos.update_all(status: 'on_hold')
+  end
+
+  def set_status_changed_at
+    self.status_changed_at = Time.zone.now
+  end
+
+  def can_update_status_changed_at?
+    status_changed_at.nil? || status_changed?
   end
 end

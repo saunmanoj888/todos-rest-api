@@ -16,6 +16,7 @@ RSpec.describe Todo, type: :model do
   context 'callbacks' do
     it { is_expected.to callback(:check_all_associated_items).before(:update).if(:status_changed?) }
     it { is_expected.to callback(:mark_todos_on_hold).before(:update).if(:status_changed?) }
+    it { is_expected.to callback(:set_status_changed_at).before(:save).if(:can_update_status_changed_at?) }
 
     describe 'When todo is marked complete' do
       before do
