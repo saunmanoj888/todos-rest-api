@@ -16,7 +16,7 @@ RSpec.describe Todo, type: :model do
   context 'callbacks' do
     it { is_expected.to callback(:check_all_associated_items).before(:update).if(:status_changed?) }
     it { is_expected.to callback(:mark_todos_on_hold).before(:update).if(:status_changed?) }
-    it { is_expected.to callback(:set_status_changed_at).before(:save).if(:can_update_status_changed_at?) }
+    it { is_expected.to callback(:set_status_updated_at).before(:save).if(:status_changed?) }
 
     describe 'When todo is marked complete' do
       before do
@@ -37,6 +37,20 @@ RSpec.describe Todo, type: :model do
       end
       it 'remaining in progress todos should be on hold' do
         expect(in_progress_todo.reload.status).to eq('on_hold')
+      end
+    end
+
+    describe 'When todo is created' do
+      before { todo }
+      it 'status_updated_at should not be set' do
+        expect(todo.status_updated_at).to eq(nil)
+      end
+    end
+
+    describe 'When todo status is updated' do
+      before { todo.update(status: 'in_progress') }
+      it 'status_updated_at also gets updated' do
+        expect(todo.status_updated_at).to_not eq(nil)
       end
     end
   end

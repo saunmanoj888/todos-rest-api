@@ -34,7 +34,7 @@ ActiveRecord::Schema.define(version: 2021_02_23_094222) do
     t.bigint "creator_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.datetime "status_changed_at"
+    t.datetime "status_updated_at"
     t.index ["creator_id"], name: "index_todos_on_creator_id"
   end
 
