@@ -4,4 +4,14 @@ class Comment < ApplicationRecord
   belongs_to :item
 
   delegate :creator, to: :item
+
+  after_create :uncheck_item
+
+  private
+
+  def uncheck_item
+    if status == 'rejected'
+      item.update_column(:checked, false)
+    end
+  end
 end

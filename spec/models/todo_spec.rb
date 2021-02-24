@@ -13,7 +13,7 @@ RSpec.describe Todo, type: :model do
   it { should have_many(:items).dependent(:destroy) }
   it { should belong_to(:creator).class_name('User').with_foreign_key('creator_id').inverse_of(:todos) }
 
-  context 'callbacks' do
+  describe 'callbacks' do
     it { is_expected.to callback(:check_all_associated_items).before(:update).if(:status_changed?) }
     it { is_expected.to callback(:mark_todos_on_hold).before(:update).if(:status_changed?) }
     it { is_expected.to callback(:set_status_updated_at).before(:save).if(:status_changed?) }
@@ -66,7 +66,7 @@ RSpec.describe Todo, type: :model do
     end
   end
 
-  context 'Scopes' do
+  describe 'Scopes' do
     describe '.with_status' do
       before do
         todo

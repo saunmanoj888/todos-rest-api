@@ -12,6 +12,10 @@ class Item < ApplicationRecord
 
   scope :unchecked_items, -> { where(checked: false) }
 
+  def can_approve_or_reject?
+    checked && !comments.pluck(:status).include?('approved')
+  end
+
   private
 
   def checked_updated?
