@@ -4,15 +4,81 @@ RSpec.describe Item, type: :model do
   let!(:item) { create(:item) }
   let!(:checked_item) { create(:item, checked: true) }
   let(:reject_checked_item) { create(:comment, item: checked_item) }
+  let(:inprogress_todo) { create(:todo, status: 'in_progress') }
+  let(:unchecked_item) { create(:item, todo: inprogress_todo) }
+  let(:item_assigned_to_self) { create(:item, todo: inprogress_todo, assignee: inprogress_todo.creator) }
+
   it { should validate_presence_of(:name) }
   it { should have_many(:comments).dependent(:destroy) }
   it { should belong_to(:todo) }
   it { should belong_to(:creator).class_name('User').with_foreign_key('creator_id').inverse_of(:created_items) }
   it { should belong_to(:assignee).class_name('User').with_foreign_key('assignee_id').inverse_of(:assigned_items) }
 
+  describe ' Custom validation' do
+    describe '.validate_can_uncheck_item' do
+      context 'When item is already approved' do
+        before do
+          item_assigned_to_self.update(checked: true)
+          item_assigned_to_self.update(checked: false)
+        end
+        it 'Item Creator cannot uncheck the item' do
+          expect(item_assigned_to_self.errors.full_messages).to include(/Cannnot uncheck, item already approved/)
+        end
+      end
+
+      context 'When item is not approved' do
+        before do
+          create(:comment, body: 'item rejected', item: unchecked_item)
+          unchecked_item.update(checked: true)
+          unchecked_item.update(checked: false)
+        end
+        it 'Item Creator can uncheck the item' do
+          expect(unchecked_item.errors.full_messages).to be_empty
+          expect(unchecked_item.checked).to eq(false)
+        end
+      end
+    end
+  end
+
   describe 'callbacks' do
     it { is_expected.to callback(:update_todo_status).after(:update).if(:checked_updated?) }
     it { is_expected.to callback(:mark_todo_in_progress).after(:create) }
+    it { is_expected.to callback(:auto_approve).after(:update).if(:checked_updated?) }
+
+    describe '.update_todo_status' do
+      context 'When all the items are checked' do
+        before { unchecked_item.update(checked: true) }
+        it 'marks the associated todo as completed' do
+          expect(unchecked_item.todo.status).to eq('completed')
+        end
+      end
+      context 'When all the items are not checked' do
+        before do
+          create(:item, todo: inprogress_todo)
+          unchecked_item.update(checked: true)
+        end
+        it 'does not mark the associated todo as completed' do
+          expect(unchecked_item.todo.status).to_not eq('completed')
+        end
+      end
+    end
+
+    describe '.auto_approve' do
+      context 'When item is marked checked' do
+        context 'When item is assigned to the creator himself' do
+          before { item_assigned_to_self.update(checked: true) }
+          it 'auto approve the item' do
+            expect(item_assigned_to_self.comments.pluck(:status)).to include('approved')
+          end
+        end
+        context 'When item is assigned to the another' do
+          before { unchecked_item.update(checked: true) }
+          it 'do not auto approve the item' do
+            expect(unchecked_item.comments.pluck(:status)).to be_empty
+          end
+        end
+      end
+    end
   end
 
   describe 'Scopes' do

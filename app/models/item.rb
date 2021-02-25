@@ -1,5 +1,6 @@
 class Item < ApplicationRecord
   validates_presence_of :name
+  validate :validate_can_uncheck_item, if: :checked_changed?
 
   has_many :comments, dependent: :destroy
   belongs_to :todo
@@ -7,6 +8,7 @@ class Item < ApplicationRecord
   belongs_to :assignee, class_name: 'User', foreign_key: 'assignee_id', inverse_of: :assigned_items
 
   after_update :update_todo_status, if: :checked_updated?
+  after_update :auto_approve, if: :checked_updated?
 
   after_create :mark_todo_in_progress
 
@@ -31,6 +33,18 @@ class Item < ApplicationRecord
   def mark_todo_in_progress
     if todo.status == 'completed'
       todo.update_attribute(:status, 'in_progress')
+    end
+  end
+
+  def auto_approve
+    if checked && (creator == assignee)
+      comments.create(body: 'auto approved', status: 'approved')
+    end
+  end
+
+  def validate_can_uncheck_item
+    if comments.pluck(:status).include?('approved')
+      errors.add(:base, "Cannnot uncheck, item already approved")
     end
   end
 end
