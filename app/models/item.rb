@@ -15,7 +15,7 @@ class Item < ApplicationRecord
   scope :unchecked_items, -> { where(checked: false) }
 
   def can_approve_or_reject?
-    checked && !comments.pluck(:status).include?('approved')
+    checked && !previously_approved?
   end
 
   private
@@ -43,8 +43,12 @@ class Item < ApplicationRecord
   end
 
   def validate_can_uncheck_item
-    if comments.pluck(:status).include?('approved')
+    if previously_approved?
       errors.add(:base, "Cannnot uncheck, item already approved")
     end
+  end
+
+  def previously_approved?
+    comments.pluck(:status).include?('approved')
   end
 end
