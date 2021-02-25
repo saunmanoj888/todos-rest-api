@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Item, type: :model do
-  let(:item) { create(:item) }
-  let(:checked_item) { create(:item, checked: true) }
+  let!(:item) { create(:item) }
+  let!(:checked_item) { create(:item, checked: true) }
   let(:reject_checked_item) { create(:comment, item: checked_item) }
   it { should validate_presence_of(:name) }
   it { should have_many(:comments).dependent(:destroy) }
@@ -17,10 +17,6 @@ RSpec.describe Item, type: :model do
 
   describe 'Scopes' do
     describe '.unchecked_items' do
-      before do
-        item
-        checked_item
-      end
       it "includes all the checked items" do
 
         expect(Item.unchecked_items).to include(item)
@@ -34,7 +30,6 @@ RSpec.describe Item, type: :model do
 
   describe '#can_approve_or_reject?' do
     context 'when item is checked' do
-      before { checked_item }
       context 'when no comments are present for item' do
         it 'returns true' do
           expect(checked_item.can_approve_or_reject?).to eq(true)
@@ -60,7 +55,6 @@ RSpec.describe Item, type: :model do
       end
     end
     context 'when item is unchecked' do
-      before { item }
       it 'returns false' do
         expect(item.can_approve_or_reject?).to eq(false)
       end

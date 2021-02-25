@@ -2,10 +2,11 @@ require 'rails_helper'
 
 RSpec.describe Todo, type: :model do
   let(:item) { create(:item) }
-  let(:todo) { create(:todo) }
-  let(:in_progress_todo) { create(:todo, status: 'in_progress', creator: todo.creator) }
+  let!(:todo) { create(:todo) }
+  let!(:in_progress_todo) { create(:todo, status: 'in_progress', creator: todo.creator) }
   let(:unchecked_item) { create(:item) }
   let(:checked_item) { create(:item, checked: true) }
+  let(:todo_updated_at) { Time.mktime(2021,01,23,11,00,00).gmtime }
 
   it { should validate_presence_of(:title) }
   it { should validate_presence_of(:status) }
@@ -20,7 +21,6 @@ RSpec.describe Todo, type: :model do
 
     describe 'When todo is marked complete' do
       before do
-        in_progress_todo
         create(:item, todo: in_progress_todo)
         in_progress_todo.update!(status: 'completed')
       end
@@ -30,27 +30,25 @@ RSpec.describe Todo, type: :model do
     end
 
     describe 'When todo is marked in progress' do
-      before do
-        todo
-        in_progress_todo
-        todo.update(status: 'in_progress')
-      end
+      before { todo.update(status: 'in_progress') }
       it 'remaining in progress todos should be on hold' do
         expect(in_progress_todo.reload.status).to eq('on_hold')
       end
     end
 
     describe 'When todo is created' do
-      before { todo }
       it 'status_updated_at should not be set' do
         expect(todo.status_updated_at).to eq(nil)
       end
     end
 
     describe 'When todo status is updated' do
-      before { todo.update(status: 'in_progress') }
+      before do
+        allow(Time).to receive(:now).and_return(todo_updated_at)
+        todo.update(status: 'in_progress')
+      end
       it 'status_updated_at also gets updated' do
-        expect(todo.status_updated_at).to_not eq(nil)
+        expect(todo.status_updated_at).to eq(todo_updated_at)
       end
     end
   end
@@ -68,10 +66,6 @@ RSpec.describe Todo, type: :model do
 
   describe 'Scopes' do
     describe '.with_status' do
-      before do
-        todo
-        in_progress_todo
-      end
 
       it "includes all the todos with status draft" do
         expect(Todo.with_status('draft')).to include(todo)
