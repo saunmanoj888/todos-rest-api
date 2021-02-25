@@ -10,15 +10,17 @@ RSpec.describe Comment, type: :model do
   describe 'callbacks' do
     describe '.uncheck_item' do
       context 'When comment is created with status rejected' do
-        before { create(:comment, item: checked_item) }
         it 'marks the item unchecked' do
-          expect(checked_item.checked).to eq(false)
+          expect{
+            create(:comment, item: checked_item)
+          }.to change(checked_item, :checked).from(true).to(false)
         end
       end
       context 'When comment is created with status approved' do
-        before { create(:comment, status: 'approved', item: checked_item) }
         it 'does not mark the item unchecked' do
-          expect(checked_item.checked).to eq(true)
+          expect{
+            create(:comment, status: 'approved', item: checked_item)
+          }.to_not change(checked_item, :checked)
         end
       end
     end
