@@ -72,7 +72,6 @@ RSpec.describe "Comments", type: :request do
     context 'When Admin creates an Item' do
       before { set_current_user(item_assigned_to_member.creator) }
       context 'When Item is assigned to another User' do
-        before { item_assigned_to_member }
         context 'When User marks item checked' do
           before { item_assigned_to_member.update_column(:checked, true) }
           context 'When Admin can approve the item' do

@@ -9,7 +9,6 @@ RSpec.describe Comment, type: :model do
 
   describe 'callbacks' do
     describe '.uncheck_item' do
-      before { checked_item }
       context 'When comment is created with status rejected' do
         before { create(:comment, item: checked_item) }
         it 'marks the item unchecked' do
