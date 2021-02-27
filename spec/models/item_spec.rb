@@ -47,18 +47,18 @@ RSpec.describe Item, type: :model do
 
     describe '.update_todo_status' do
       context 'When all the items are checked' do
-        before { unchecked_item.update(checked: true) }
         it 'marks the associated todo as completed' do
-          expect(unchecked_item.todo.status).to eq('completed')
+          expect {
+            unchecked_item.update(checked: true)
+          }.to change(unchecked_item.todo, :status).from('in_progress').to('completed')
         end
       end
       context 'When all the items are not checked' do
-        before do
-          create(:item, todo: inprogress_todo)
-          unchecked_item.update(checked: true)
-        end
+        before { create(:item, todo: inprogress_todo) }
         it 'does not mark the associated todo as completed' do
-          expect(unchecked_item.todo.status).to_not eq('completed')
+          expect {
+            unchecked_item.update(checked: true)
+          }.to_not change(unchecked_item.todo, :status)
         end
       end
     end
@@ -66,16 +66,37 @@ RSpec.describe Item, type: :model do
     describe '.auto_approve' do
       context 'When item is marked checked' do
         context 'When item is assigned to the creator himself' do
-          before { item_assigned_to_self.update(checked: true) }
           it 'auto approve the item' do
+            expect {
+              item_assigned_to_self.update(checked: true)
+            }.to change { Comment.count }.from(0).to(1)
             expect(item_assigned_to_self.comments.pluck(:status)).to include('approved')
           end
         end
         context 'When item is assigned to the another' do
-          before { unchecked_item.update(checked: true) }
           it 'do not auto approve the item' do
+            expect {
+              unchecked_item.update(checked: true)
+            }.to_not change { Comment.count }
             expect(unchecked_item.comments.pluck(:status)).to be_empty
           end
+        end
+      end
+    end
+
+    describe '.mark_todo_in_progress' do
+      context 'When new item is added in completed Todo' do
+        before { inprogress_todo.update(status: 'completed') }
+        it 'marks the todo as in progress' do
+          expect {
+            create(:item, todo: inprogress_todo)
+          }.to change(inprogress_todo, :status).from('completed').to('in_progress')
+        end
+      end
+
+      context 'When new item is added in Todo which is not completed' do
+        it 'does not mark the todo as in progress' do
+          expect { create(:item, todo: inprogress_todo) }.to_not change(inprogress_todo, :status)
         end
       end
     end
@@ -84,7 +105,6 @@ RSpec.describe Item, type: :model do
   describe 'Scopes' do
     describe '.unchecked_items' do
       it "includes all the checked items" do
-
         expect(Item.unchecked_items).to include(item)
       end
 

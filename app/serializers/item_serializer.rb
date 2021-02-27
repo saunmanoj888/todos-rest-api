@@ -4,6 +4,6 @@ class ItemSerializer < ActiveModel::Serializer
   belongs_to :assignee
 
   def comments
-    ActiveModel::SerializableResource.new(object.comments,  each_serializer: CommentSerializer)
+    ActiveModelSerializers::SerializableResource.new(object.comments,  each_serializer: CommentSerializer)
   end
 end
