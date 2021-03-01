@@ -1,9 +1,6 @@
 class ItemSerializer < ActiveModel::Serializer
-  attributes :id, :name, :creator_id, :assignee_id, :checked, :todo_id, :comments
-  belongs_to :creator
-  belongs_to :assignee
-
-  def comments
-    ActiveModelSerializers::SerializableResource.new(object.comments,  each_serializer: CommentSerializer)
-  end
+  attributes :id, :name, :creator_id, :assignee_id, :checked, :todo_id
+  has_one :creator
+  has_one :assignee
+  has_many :comments
 end
