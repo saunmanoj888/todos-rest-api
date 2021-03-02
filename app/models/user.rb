@@ -16,17 +16,18 @@ class User < ApplicationRecord
     role == 'Admin'
   end
 
-  def can_read?
-    roles_users.where("expiry_date >= ?", Time.zone.now).or(roles_users.where(expiry_date: nil)).present?
-  end
 
-  def can_manage?
-    role_ids = roles_users.where("expiry_date >= ?", Time.zone.now).or(roles_users.where(expiry_date: nil)).pluck(:role_id)
-    Role.includes(:permissions).where(id: role_ids, permissions: { name: 'can_manage_users' }).present?
+  def can_access_permission?(permission_name)
+    role_ids = active_roles_users.pluck(:role_id)
+    Role.includes(:permissions).where(id: role_ids, permissions: { name: permission_name }).present?
   end
 
   def max_role_level
-    role_ids = roles_users.where("expiry_date >= ?", Time.zone.now).or(roles_users.where(expiry_date: nil)).pluck(:role_id)
+    role_ids = active_roles_users.pluck(:role_id)
     Role.where(id: role_ids).pluck(:level).max || 0
+  end
+
+  def active_roles_users
+    roles_users.active_having_expiry_date.or(roles_users.without_expiry_date)
   end
 end

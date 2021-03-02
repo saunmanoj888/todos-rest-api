@@ -4,4 +4,7 @@ class RolesUser < ApplicationRecord
 
   belongs_to :user
   belongs_to :role
+
+  scope :without_expiry_date, -> { where(expiry_date: nil) }
+  scope :active_having_expiry_date, -> { where("expiry_date >= ?", Time.zone.now) }
 end
