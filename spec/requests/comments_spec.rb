@@ -20,7 +20,7 @@ RSpec.describe "Comments", type: :request do
         it 'returns comments' do
           expect(json).not_to be_empty
           expect(json.size).to eq(1)
-          expect(json.first).to have_key('id')
+          expect(json['comments'].first).to have_key('id')
         end
 
         it 'returns status code 200' do
@@ -47,7 +47,7 @@ RSpec.describe "Comments", type: :request do
         it 'returns items' do
           expect(json).not_to be_empty
           expect(json.size).to eq(1)
-          expect(json.first).to have_key('id')
+          expect(json['comments'].first).to have_key('id')
         end
 
         it 'returns status code 200' do
@@ -77,13 +77,13 @@ RSpec.describe "Comments", type: :request do
           context 'When Admin can approve the item' do
             before { post "/items/#{item_assigned_to_member.id}/comments", params: { comment: { body: 'test', status: 'approved' } } }
             it 'creates a comment' do
-              expect(json['status']).to eq('approved')
+              expect(json['comment']['status']).to eq('approved')
             end
           end
           context 'When Admin can reject the item' do
             before { post "/items/#{item_assigned_to_member.id}/comments", params: { comment: { body: 'test', status: 'rejected' } } }
             it 'creates a comment' do
-              expect(json['status']).to eq('rejected')
+              expect(json['comment']['status']).to eq('rejected')
             end
           end
         end

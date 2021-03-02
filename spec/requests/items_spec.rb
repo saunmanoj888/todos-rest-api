@@ -22,7 +22,7 @@ RSpec.describe 'Items API', type: :request do
         it 'returns items' do
           expect(json).not_to be_empty
           expect(json.size).to eq(1)
-          expect(json.first).to have_key('id')
+          expect(json['items'].first).to have_key('id')
         end
 
         it 'returns status code 200' do
@@ -65,7 +65,7 @@ RSpec.describe 'Items API', type: :request do
 
           it 'returns the item' do
             expect(json).not_to be_empty
-            expect(json['id']).to eq(item_assigned_to_admin.id)
+            expect(json['item']['id']).to eq(item_assigned_to_admin.id)
           end
 
           it 'returns status code 200' do
@@ -80,7 +80,7 @@ RSpec.describe 'Items API', type: :request do
 
           it 'returns the item' do
             expect(json).not_to be_empty
-            expect(json['id']).to eq(item.id)
+            expect(json['item']['id']).to eq(item.id)
           end
         end
         context 'When item neither created by/assigned to User' do
@@ -116,7 +116,7 @@ RSpec.describe 'Items API', type: :request do
         before { get "/items/#{item_assigned_to_member.id}" }
         it 'returns the item' do
           expect(json).not_to be_empty
-          expect(json['id']).to eq(item_assigned_to_member.id)
+          expect(json['item']['id']).to eq(item_assigned_to_member.id)
         end
       end
       context 'When item is not assigned to User' do
@@ -140,7 +140,7 @@ RSpec.describe 'Items API', type: :request do
           before { post "/todos/#{todo_id}/items", params: valid_attributes }
 
           it 'creates an item' do
-            expect(json['name']).to eq('Learn Elm')
+            expect(json['item']['name']).to eq('Learn Elm')
           end
 
           it 'returns status code 201' do
@@ -195,7 +195,7 @@ RSpec.describe 'Items API', type: :request do
         end
 
         it 'updates the record' do
-          expect(json['checked']).to eq(true)
+          expect(json['item']['checked']).to eq(true)
         end
 
         it 'returns status code 200' do
@@ -224,14 +224,14 @@ RSpec.describe 'Items API', type: :request do
         context 'When User only updates Checked' do
           before { put "/items/#{item_assigned_to_member.id}", params: valid_attributes }
           it 'updates the record' do
-            expect(json['checked']).to eq(true)
+            expect(json['item']['checked']).to eq(true)
           end
         end
         context 'When User updates details other than checked' do
           before { put "/items/#{item_assigned_to_member.id}", params: { item: { checked: true, name: 'test' } } }
           it 'does not change any other details except checked' do
-            expect(json['name']).to_not eq('test')
-            expect(json['checked']).to eq(true)
+            expect(json['item']['name']).to_not eq('test')
+            expect(json['item']['checked']).to eq(true)
           end
         end
       end

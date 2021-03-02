@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Todos API', type: :request do
   let(:admin_user) { create(:user) }
   let(:member_user) { create(:user, role: 'Member') }
-  let!(:todos) { create_list(:todo, 10) }
+  let(:todos) { create_list(:todo, 10) }
   let(:todo) { todos.first }
   let(:todo_id) { todo.id }
   let(:todo_created_by_admin) { create(:todo, creator: admin_user) }
@@ -21,7 +21,7 @@ RSpec.describe 'Todos API', type: :request do
       it 'returns all todos belonging to the User only' do
         expect(json).not_to be_empty
         expect(json.size).to eq(1)
-        expect(json.first).to have_key('id')
+        expect(json['todos'].first).to have_key('id')
       end
 
       it 'returns status code 200' do
@@ -51,7 +51,7 @@ RSpec.describe 'Todos API', type: :request do
         context 'when the record exists' do
           it 'returns the todo' do
             expect(json).not_to be_empty
-            expect(json['id']).to eq(todo_created_by_admin.id)
+            expect(json['todo']['id']).to eq(todo_created_by_admin.id)
           end
 
           it 'returns status code 200' do
@@ -96,7 +96,7 @@ RSpec.describe 'Todos API', type: :request do
         before { post '/todos', params: valid_attributes }
 
         it 'creates a todo' do
-          expect(json['title']).to eq('Learn Elm')
+          expect(json['todo']['title']).to eq('Learn Elm')
         end
 
         it 'returns status code 201' do
@@ -140,7 +140,7 @@ RSpec.describe 'Todos API', type: :request do
           context 'when record is valid' do
             before { put "/todos/#{todo_id}", params: valid_attributes }
             it 'updates the record' do
-              expect(json['title']).to eq('Shopping')
+              expect(json['todo']['title']).to eq('Shopping')
             end
 
             it 'returns status code 200' do

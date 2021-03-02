@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Users API', type: :request do
-  let!(:users) { create_list(:user, 10) }
+  let(:users) { create_list(:user, 10) }
   let(:admin_user) { create(:user) }
   let(:member_user) { create(:user, role: 'Member') }
   let(:user_id) { users.first.id }
@@ -19,7 +19,7 @@ RSpec.describe 'Users API', type: :request do
       end
       it 'returns all User details' do
         expect(json).not_to be_empty
-        expect(json['users'].size).to eq(11)
+        expect(json['users'].size).to eq(1)
         expect(json['users'].first).to have_key('id')
       end
     end
