@@ -64,12 +64,12 @@ class UsersController < ApplicationController
   def assign_role
     expiry_date = params[:user][:expiry_date]
 
-    authorization = @user.roles_users.find_or_initialize_by(role: @role)
-    authorization.expiry_date = expiry_date if params[:user].has_key?(:expiry_date)
-    if authorization.save
-      json_response(authorization)
+    role_user = @user.roles_users.find_or_initialize_by(role: @role)
+    role_user.expiry_date = expiry_date if params[:user].has_key?(:expiry_date)
+    if role_user.save
+      json_response(role_user)
     else
-      json_response({ message: authorization.errors.full_messages }, :bad_request)
+      json_response({ message: role_user.errors.full_messages }, :bad_request)
     end
   end
 

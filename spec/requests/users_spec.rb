@@ -1,10 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe 'Users API', type: :request do
-  let(:users) { create_list(:user, 10) }
+  let(:user) { create(:user) }
   let(:admin_user) { create(:user) }
   let(:member_user) { create(:user, role: 'Member') }
-  let(:user_id) { users.first.id }
+  let(:user_id) { user.id }
 
   describe 'GET /users' do
     before do

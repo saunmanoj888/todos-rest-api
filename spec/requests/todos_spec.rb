@@ -3,8 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Todos API', type: :request do
   let(:admin_user) { create(:user) }
   let(:member_user) { create(:user, role: 'Member') }
-  let(:todos) { create_list(:todo, 10) }
-  let(:todo) { todos.first }
+  let(:todo) { create(:todo) }
   let(:todo_id) { todo.id }
   let(:todo_created_by_admin) { create(:todo, creator: admin_user) }
 
