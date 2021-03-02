@@ -1,4 +1,6 @@
 class ItemsController < ApplicationController
+  include ItemFilter
+
   before_action :set_item, only: %i[show update destroy]
   before_action :set_todo, only: %i[index create]
   before_action :authorize_user, except: %i[update show all_items]
@@ -60,18 +62,5 @@ class ItemsController < ApplicationController
 
   def set_item
     @item = Item.find(params[:id])
-  end
-
-  def validate_todo
-    @todo ||= @item.todo
-    return if @todo.creator == current_user
-
-    render json: { message: 'This Todo does not belongs to you' }, status: :unauthorized
-  end
-
-  def validate_item
-    return if @item.assignee == current_user || @item.todo.creator == current_user
-
-    render json: { message: 'Item does not belongs to the User' }, status: :unauthorized
   end
 end

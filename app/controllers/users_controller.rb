@@ -1,4 +1,6 @@
 class UsersController < ApplicationController
+  include UserFilter
+
   before_action :set_user, only: %i[show update destroy assign_role]
   before_action :authorized, except: %i[login]
   before_action :authorize_user, only: %i[create update destroy]
@@ -81,25 +83,7 @@ class UsersController < ApplicationController
     @user = User.find(params[:id])
   end
 
-  def verify_read_permissions
-    return if current_user&.can_access_permission?('can_read_users') || current_user&.can_access_permission?('can_manage_users')
-
-    render json: { message: 'Cannot view User details' }, status: :unauthorized
-  end
-
   def find_role
     @role = Role.find_by!(name: params[:user][:role_name])
-  end
-
-  def verify_manage_permissions
-    return if current_user&.can_access_permission?('can_manage_users')
-
-    render json: { message: 'You dont have permission to update User details' }, status: :unauthorized
-  end
-
-  def verify_max_role_level
-    return if current_user.max_role_level > @user.max_role_level
-
-    render json: { message: 'Logged in User role level is less than Updating User role level' }, status: :unauthorized
   end
 end
