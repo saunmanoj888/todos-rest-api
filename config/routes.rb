@@ -10,4 +10,5 @@ Rails.application.routes.draw do
   post "/login", to: "users#login"
   get "/auto_login", to: "users#auto_login"
   get 'all_items', to: 'items#all_items'
+  post 'assign_role/:id/:role_name', to: 'users#assign_role'
 end

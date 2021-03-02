@@ -19,4 +19,14 @@ class User < ApplicationRecord
   def can_read?
     authorizations.where("expiry_date >= ?", Time.zone.now).or(authorizations.where(expiry_date: nil)).present?
   end
+
+  def can_manage?
+    role_ids = authorizations.where("expiry_date >= ?", Time.zone.now).or(authorizations.where(expiry_date: nil)).pluck(:role_id)
+    Role.includes(:permissions).where(id: role_ids, permissions: { name: 'can_manage_users' }).present?
+  end
+
+  def max_role_level
+    role_ids = authorizations.where("expiry_date >= ?", Time.zone.now).or(authorizations.where(expiry_date: nil)).pluck(:role_id)
+    Role.where(id: role_ids).pluck(:level).max || 0
+  end
 end

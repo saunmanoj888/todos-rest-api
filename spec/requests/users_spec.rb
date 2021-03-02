@@ -239,4 +239,59 @@ RSpec.describe 'Users API', type: :request do
        expect(response).to eq('stubbed response')
     end
   end
+
+  describe 'POST /Assign Role' do
+    before { login }
+    context 'When Permission is not expired' do
+      context 'When Logged in User can manage users' do
+        context 'When Logged in User max role is greater than updating users max role' do
+          before do
+            set_current_user(admin_user)
+            create(:authorization, user: admin_user)
+            post "/assign_role/#{user_id}/SuperAdmin", params: { user: { authorizations: { expiry_date: (Time.zone.now + 2.days) } } }
+          end
+
+          it 'can assign role to other Users' do
+            expect(json).not_to be_empty
+            expect(json).to have_key('role_id')
+          end
+        end
+        context 'When Logged in User max role is less than updating users max role' do
+          before do
+            set_current_user(member_user)
+            member_user.roles << create(:role, :supervisor)
+            create(:authorization, user: admin_user)
+            post "/assign_role/#{admin_user.id}/SuperAdmin", params: { user: { authorizations: { expiry_date: (Time.zone.now + 2.days) } } }
+          end
+
+          it 'returns a failure message' do
+            expect(response.body).to match(/Logged in User role level is less than Updating User role level/)
+          end
+        end
+      end
+
+      context 'When Logged in User cannot manage users' do
+        before do
+          set_current_user(admin_user)
+          admin_user.roles << create(:role, :member)
+          post "/assign_role/#{user_id}/Member", params: { user: { authorizations: { expiry_date: (Time.zone.now + 2.days) } } }
+        end
+
+        it 'returns a failure message' do
+          expect(response.body).to match(/Cannot update User details/)
+        end
+      end
+    end
+    context 'When Permission is expired' do
+      before do
+        set_current_user(admin_user)
+        create(:authorization, user: admin_user, expiry_date: Time.zone.now - 2.days)
+        post "/assign_role/#{user_id}/SuperAdmin", params: { user: { authorizations: { expiry_date: (Time.zone.now + 2.days) } } }
+      end
+
+      it 'returns a failure message' do
+        expect(response.body).to match(/Cannot update User details/)
+      end
+    end
+  end
 end
