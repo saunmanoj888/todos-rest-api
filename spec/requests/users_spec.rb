@@ -14,7 +14,7 @@ RSpec.describe 'Users API', type: :request do
 
     context 'When permission is not expired' do
       before do
-        create(:authorization, user: admin_user)
+        create(:roles_user, user: admin_user)
         get '/users'
       end
       it 'returns all User details' do
@@ -26,7 +26,7 @@ RSpec.describe 'Users API', type: :request do
 
     context 'When permission is expired' do
       before do
-        create(:authorization, user: admin_user, expiry_date: Time.zone.now - 2.days)
+        create(:roles_user, user: admin_user, expiry_date: Time.zone.now - 2.days)
         get '/users'
       end
       it 'returns a failure message' do
@@ -50,7 +50,7 @@ RSpec.describe 'Users API', type: :request do
 
     context 'When permission is not expired' do
       before do
-        create(:authorization, user: admin_user)
+        create(:roles_user, user: admin_user)
         get "/users/#{user_id}"
       end
       it 'returns all User details' do
@@ -61,7 +61,7 @@ RSpec.describe 'Users API', type: :request do
 
     context 'When permission is expired' do
       before do
-        create(:authorization, user: admin_user, expiry_date: Time.zone.now - 2.days)
+        create(:roles_user, user: admin_user, expiry_date: Time.zone.now - 2.days)
         get "/users/#{user_id}"
       end
       it 'returns a failure message' do
@@ -247,8 +247,8 @@ RSpec.describe 'Users API', type: :request do
         context 'When Logged in User max role is greater than updating users max role' do
           before do
             set_current_user(admin_user)
-            create(:authorization, user: admin_user)
-            post "/assign_role/#{user_id}/SuperAdmin", params: { user: { authorizations: { expiry_date: (Time.zone.now + 2.days) } } }
+            create(:roles_user, user: admin_user)
+            post "/users/#{user_id}/assign_role", params: { user: { role_name: 'SuperAdmin', expiry_date: (Time.zone.now + 2.days) } }
           end
 
           it 'can assign role to other Users' do
@@ -260,8 +260,8 @@ RSpec.describe 'Users API', type: :request do
           before do
             set_current_user(member_user)
             member_user.roles << create(:role, :supervisor)
-            create(:authorization, user: admin_user)
-            post "/assign_role/#{admin_user.id}/SuperAdmin", params: { user: { authorizations: { expiry_date: (Time.zone.now + 2.days) } } }
+            create(:roles_user, user: admin_user)
+            post "/users/#{admin_user.id}/assign_role", params: { user: { role_name: 'SuperAdmin', expiry_date: (Time.zone.now + 2.days) } }
           end
 
           it 'returns a failure message' do
@@ -274,7 +274,7 @@ RSpec.describe 'Users API', type: :request do
         before do
           set_current_user(admin_user)
           admin_user.roles << create(:role, :member)
-          post "/assign_role/#{user_id}/Member", params: { user: { authorizations: { expiry_date: (Time.zone.now + 2.days) } } }
+          post "/users/#{user_id}/assign_role", params: { user: { role_name: 'Member', expiry_date: (Time.zone.now + 2.days) } }
         end
 
         it 'returns a failure message' do
@@ -285,8 +285,8 @@ RSpec.describe 'Users API', type: :request do
     context 'When Permission is expired' do
       before do
         set_current_user(admin_user)
-        create(:authorization, user: admin_user, expiry_date: Time.zone.now - 2.days)
-        post "/assign_role/#{user_id}/SuperAdmin", params: { user: { authorizations: { expiry_date: (Time.zone.now + 2.days) } } }
+        create(:roles_user, user: admin_user, expiry_date: Time.zone.now - 2.days)
+        post "/users/#{user_id}/assign_role", params: { user: { role_name: 'SuperAdmin', expiry_date: (Time.zone.now + 2.days) } }
       end
 
       it 'returns a failure message' do

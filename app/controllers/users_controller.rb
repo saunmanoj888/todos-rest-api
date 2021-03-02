@@ -60,10 +60,10 @@ class UsersController < ApplicationController
   end
 
   def assign_role
-    expiry_date = params.dig(:user, :authorizations, :expiry_date)
+    expiry_date = params[:user][:expiry_date]
 
-    authorization = @user.authorizations.find_or_initialize_by(role: @role)
-    authorization.expiry_date = expiry_date if params.dig(:user, :authorizations).has_key?(:expiry_date)
+    authorization = @user.roles_users.find_or_initialize_by(role: @role)
+    authorization.expiry_date = expiry_date if params[:user].has_key?(:expiry_date)
     if authorization.save
       json_response(authorization)
     else
@@ -74,9 +74,7 @@ class UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(
-      :username, :password, :role, :email, :first_name, :last_name, authorizations_attributes: [:expiry_date]
-    )
+    params.require(:user).permit(:username, :password, :role, :email, :first_name, :last_name)
   end
 
   def set_user
@@ -90,7 +88,7 @@ class UsersController < ApplicationController
   end
 
   def find_role
-    @role = Role.find_by(name: params[:role_name])
+    @role = Role.find_by!(name: params[:user][:role_name])
   end
 
   def verify_manage_permissions

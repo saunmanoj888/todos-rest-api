@@ -15,16 +15,6 @@ ActiveRecord::Schema.define(version: 2021_03_01_173353) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "authorizations", force: :cascade do |t|
-    t.bigint "user_id"
-    t.bigint "role_id"
-    t.datetime "expiry_date"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["role_id"], name: "index_authorizations_on_role_id"
-    t.index ["user_id"], name: "index_authorizations_on_user_id"
-  end
-
   create_table "comments", force: :cascade do |t|
     t.string "body"
     t.string "status"
@@ -66,6 +56,16 @@ ActiveRecord::Schema.define(version: 2021_03_01_173353) do
     t.integer "level"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "roles_users", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "role_id"
+    t.datetime "expiry_date"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["role_id"], name: "index_roles_users_on_role_id"
+    t.index ["user_id"], name: "index_roles_users_on_user_id"
   end
 
   create_table "todos", force: :cascade do |t|

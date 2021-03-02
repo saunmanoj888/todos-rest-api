@@ -1,4 +1,4 @@
-class AuthorizationSerializer < ActiveModel::Serializer
+class RoleUserSerializer < ActiveModel::Serializer
   attributes :id, :user_id, :role_id, :username, :role_name, :expiry_date
 
   def username
