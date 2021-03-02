@@ -63,7 +63,7 @@ class UsersController < ApplicationController
     expiry_date = params.dig(:user, :authorizations, :expiry_date)
 
     authorization = @user.authorizations.find_or_initialize_by(role: @role)
-    authorization.expiry_date = expiry_date if expiry_date.present?
+    authorization.expiry_date = expiry_date if params.dig(:user, :authorizations).has_key?(:expiry_date)
     if authorization.save
       json_response(authorization)
     else
@@ -96,7 +96,7 @@ class UsersController < ApplicationController
   def verify_manage_permissions
     return if current_user&.can_manage?
 
-    render json: { message: 'Cannot update User details' }, status: :unauthorized
+    render json: { message: 'You dont have permission to update User details' }, status: :unauthorized
   end
 
   def verify_max_role_level

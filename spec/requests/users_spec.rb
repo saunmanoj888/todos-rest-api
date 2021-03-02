@@ -278,7 +278,7 @@ RSpec.describe 'Users API', type: :request do
         end
 
         it 'returns a failure message' do
-          expect(response.body).to match(/Cannot update User details/)
+          expect(response.body).to match(/You dont have permission to update User details/)
         end
       end
     end
@@ -290,7 +290,7 @@ RSpec.describe 'Users API', type: :request do
       end
 
       it 'returns a failure message' do
-        expect(response.body).to match(/Cannot update User details/)
+        expect(response.body).to match(/You dont have permission to update User details/)
       end
     end
   end
