@@ -7,90 +7,81 @@ RSpec.describe 'Users API', type: :request do
   let(:user_id) { users.first.id }
 
   describe 'GET /users' do
-    before { login }
+    before do
+      login
+      set_current_user(admin_user)
+    end
 
-    context 'when User with Admin roles logs in' do
+    context 'When permission is not expired' do
       before do
-        set_current_user(admin_user)
+        create(:authorization, user: admin_user)
         get '/users'
       end
-
-      it 'returns all users' do
+      it 'returns all User details' do
         expect(json).not_to be_empty
-        expect(json.size).to eq(11)
-        expect(json.first).to have_key('id')
-      end
-
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
+        expect(json['users'].size).to eq(11)
+        expect(json['users'].first).to have_key('id')
       end
     end
-    context 'when User with Member roles logs in' do
+
+    context 'When permission is expired' do
       before do
-        set_current_user(member_user)
+        create(:authorization, user: admin_user, expiry_date: Time.zone.now - 2.days)
         get '/users'
       end
-
-      it 'returns details of self' do
-        expect(json).not_to be_empty
-        expect(json.size).to eq(1)
-        expect(json.first).to have_key('id')
+      it 'returns a failure message' do
+        expect(response.body).to match(/Cannot view User details/)
       end
+    end
 
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
+    context 'When User has no permissions' do
+      before { get '/users' }
+      it 'returns a failure message' do
+        expect(response.body).to match(/Cannot view User details/)
       end
     end
   end
 
   describe 'GET /users/:id' do
-    before { login }
+    before do
+      login
+      set_current_user(admin_user)
+    end
 
-    context 'when User is Admin' do
+    context 'When permission is not expired' do
       before do
-        set_current_user(admin_user)
+        create(:authorization, user: admin_user)
         get "/users/#{user_id}"
       end
-
-      context 'when the record exists' do
-        it 'returns the user' do
-          expect(json).not_to be_empty
-          expect(json['id']).to eq(user_id)
-        end
-
-        it 'returns status code 200' do
-          expect(response).to have_http_status(200)
-        end
-      end
-
-      context 'when the record does not exist' do
-        let(:user_id) { 100 }
-
-        it 'returns status code 404' do
-          expect(response).to have_http_status(404)
-        end
-
-        it 'returns a not found message' do
-          expect(response.body).to match(/Couldn't find User/)
-        end
+      it 'returns all User details' do
+        expect(json).not_to be_empty
+        expect(json['user']['id']).to eq(user_id)
       end
     end
 
-    context 'when User is not Admin' do
+    context 'When permission is expired' do
       before do
-        set_current_user(member_user)
+        create(:authorization, user: admin_user, expiry_date: Time.zone.now - 2.days)
         get "/users/#{user_id}"
       end
+      it 'returns a failure message' do
+        expect(response.body).to match(/Cannot view User details/)
+      end
+    end
 
-      it 'returns a validation message' do
-        expect(response.body).to match(/Only admin can perform this task/)
+    context 'When User has no permissions' do
+      before { get "/users/#{user_id}" }
+      it 'returns a failure message' do
+        expect(response.body).to match(/Cannot view User details/)
       end
     end
   end
 
   describe 'POST /users' do
     before { login }
-    let(:valid_attributes) { { user: { username: 'manoj', password: 'qwerty', role: 'Admin' } } }
+    let(:valid_attributes) {
+      { user: { username: 'manoj', password: 'qwerty', role: 'Admin', email: 'test@example.com', first_name: 'toe', last_name: 'sews' } }
+    }
 
     context 'when User with Admin role logs in' do
       before { set_current_user(admin_user) }
@@ -98,7 +89,7 @@ RSpec.describe 'Users API', type: :request do
         before { post '/users', params: valid_attributes }
 
         it 'creates a user' do
-          expect(json['username']).to eq('manoj')
+          expect(json['user']['username']).to eq('manoj')
         end
 
         it 'returns status code 201' do
@@ -142,7 +133,7 @@ RSpec.describe 'Users API', type: :request do
             before { put "/users/#{admin_user.id}", params: { user: { username: admin_user.username, password: admin_user.password } } }
 
             it 'updates the record' do
-              expect(json['username']).to eq(admin_user.username)
+              expect(json['user']['username']).to eq(admin_user.username)
             end
 
             it 'returns status code 204' do

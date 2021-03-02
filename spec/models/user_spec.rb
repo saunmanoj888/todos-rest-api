@@ -14,7 +14,7 @@ RSpec.describe User, type: :model do
   it { should have_many(:todos).with_foreign_key('creator_id').dependent(:destroy).inverse_of(:creator) }
   it { should have_many(:created_items).class_name('Item').with_foreign_key('creator_id').dependent(:restrict_with_error).inverse_of(:creator) }
   it { should have_many(:assigned_items).class_name('Item').with_foreign_key('assignee_id').dependent(:restrict_with_error).inverse_of(:assignee) }
-  it { should have_many(:authorizations) }
+  it { should have_many(:authorizations).dependent(:destroy) }
   it { should have_many(:roles).through(:authorizations) }
 
   describe "#admin?" do

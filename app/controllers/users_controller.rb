@@ -1,11 +1,11 @@
 class UsersController < ApplicationController
   before_action :set_user, only: %i[show update destroy]
   before_action :authorized, except: %i[login]
-  before_action :authorize_user, only: %i[show create update destroy]
+  before_action :authorize_user, only: %i[create update destroy]
+  before_action :verify_read_permissions, only: %i[index show]
 
   def index
-    @users = current_user.admin? ? User.all : [current_user]
-    json_response(@users)
+    json_response(User.all)
   end
 
   def show
@@ -59,10 +59,16 @@ class UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:username, :password, :role)
+    params.require(:user).permit(:username, :password, :role, :email, :first_name, :last_name)
   end
 
   def set_user
     @user = User.find(params[:id])
+  end
+
+  def verify_read_permissions
+    return if current_user&.can_read?
+
+    render json: { message: 'Cannot view User details' }, status: :unauthorized
   end
 end

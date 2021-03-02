@@ -1,5 +1,5 @@
 FactoryBot.define do
   factory :permission do
-    name { "MyString" }
+    name { 'can_manage_users' }
   end
 end
