@@ -50,8 +50,7 @@ class UsersController < ApplicationController
     @user = User.find_by(username: params[:user][:username])
 
     if @user&.authenticate(params[:user][:password])
-      token = JsonWebToken.encode({ user_id: @user.id })
-      render json: { user: @user, token: token }
+      render json: { user: @user, token: JsonWebToken.encode({ user_id: @user.id }) }
     else
       render json: { error: 'Invalid username or password' }
     end
@@ -62,10 +61,8 @@ class UsersController < ApplicationController
   end
 
   def assign_role
-    expiry_date = params[:user][:expiry_date]
-
     role_user = @user.roles_users.find_or_initialize_by(role: @role)
-    role_user.expiry_date = expiry_date if params[:user].has_key?(:expiry_date)
+    role_user.expiry_date = params[:user][:expiry_date] if params[:user].has_key?(:expiry_date)
     if role_user.save
       json_response(role_user)
     else

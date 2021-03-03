@@ -13,6 +13,9 @@ class Item < ApplicationRecord
   after_create :mark_todo_in_progress
 
   scope :unchecked_items, -> { where(checked: false) }
+  scope :assigned_to, ->(user_id) { where("assignee_id = ?", user_id) }
+  scope :created_by, ->(user_id) { where("creator_id = ?", user_id) }
+
 
   def can_approve_or_reject?
     checked && !previously_approved?

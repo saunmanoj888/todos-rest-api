@@ -8,8 +8,7 @@ class CommentsController < ApplicationController
   before_action :validate_item_approval, only: :create
 
   def index
-    @comments = @item.comments
-    json_response(@comments)
+    json_response(@item.comments)
   end
 
   def create

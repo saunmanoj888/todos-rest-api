@@ -42,8 +42,7 @@ class ItemsController < ApplicationController
   end
 
   def all_items
-    @items = Item.where(creator_id: current_user).or(Item.where(assignee: current_user))
-    json_response(@items)
+    json_response(Item.created_by(current_user.id).or(Item.assigned_to(current_user.id)))
   end
 
   private
